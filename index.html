@@ -2625,10 +2625,74 @@
       </div>
 
       <footer>Chọn file, kiểm tra/chỉnh lại cột cho khớp, bấm nút cập nhật tương ứng, sau đó chuyển sang tab "Theo Campaign" hoặc "Theo Ads" để xem dữ liệu mới. Có thể cập nhật lại bất kỳ lúc nào bằng cách tải file mới.</footer>
+
+      <div style="margin-top: 30px; padding: 15px; background: var(--bg-light); border-radius: 8px; border-left: 4px solid var(--active);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <div>
+            <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">💾 Trạng thái lưu dữ liệu</div>
+            <div id="storage-info" style="color: var(--muted); font-size: 12.5px;">Chưa có dữ liệu được lưu</div>
+          </div>
+          <button onclick="clearAllStoredData()" style="background: #dc2626; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.2s;">🗑️ Xóa tất cả dữ liệu lưu</button>
+        </div>
+      </div>
     </div>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_WXYCXYx5Xq-c6TT8RKjSWGbga0z6tLY",
+    authDomain: "adsreport-6df0d.firebaseapp.com",
+    projectId: "adsreport-6df0d",
+    storageBucket: "adsreport-6df0d.firebasestorage.app",
+    messagingSenderId: "1033543466889",
+    appId: "1:1033543466889:web:48da157157850c5014eb58"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Global variables for Firebase
+  window.firebaseApp = app;
+  window.firebaseAuth = auth;
+  window.firebaseDb = db;
+  window.currentUserId = null;
+  window.firebaseReady = false;
+
+  // Initialize Firebase and authenticate
+  signInAnonymously(auth)
+    .then((result) => {
+      window.currentUserId = result.user.uid;
+      window.firebaseReady = true;
+      console.log("✓ Firebase connected:", window.currentUserId);
+      updateStorageInfo();
+      loadDataFromFirebase();
+    })
+    .catch((error) => {
+      console.error("Firebase Auth Error:", error);
+      updateStorageInfo();
+    });
+
+  // Listen for auth state changes
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.currentUserId = user.uid;
+      window.firebaseReady = true;
+    } else {
+      window.firebaseReady = false;
+    }
+  });
+</script>
+
 <script>
 function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -2902,6 +2966,7 @@ function handleCampaignFile() {
 }
 
 function renderCampaignTable(rows) {
+  campaignRows = rows;
   rows.sort(function(a, b) { return b.spend - a.spend; });
   var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
   var html = '';
@@ -2923,7 +2988,12 @@ function renderCampaignTable(rows) {
   cards[0].textContent = formatVND(total);
   cards[1].textContent = rows.length;
   cards[2].textContent = activeCount;
+  saveDataToFirebase();
+  updateStorageInfo();
 }
+
+/* ---- File 1: Campaign ---- */
+var campaignRows = null;
 
 /* ---- File 2 + File 3: Ads + Lead ---- */
 var adsRows = null;
@@ -3001,7 +3071,172 @@ function renderAdsTable() {
   sortState.leads = 0; sortState.cpl = 0;
   document.getElementById('arrow-leads').textContent = '⇅';
   document.getElementById('arrow-cpl').textContent = '⇅';
+  saveDataToFirebase();
+  updateStorageInfo();
 }
+
+/* ========== FIREBASE + LOCALSTORAGE ========== */
+
+// Lưu dữ liệu vào Firebase Firestore + localStorage (backup)
+function saveDataToFirebase() {
+  try {
+    var data = {
+      campaignRows: campaignRows,
+      adsRows: adsRows,
+      leadMap: leadMap,
+      timestamp: new Date().toLocaleString('vi-VN'),
+      syncedAt: new Date().toISOString()
+    };
+    
+    // Lưu vào localStorage (backup local)
+    localStorage.setItem('reportData', JSON.stringify(data));
+    
+    // Lưu vào Firebase (nếu sẵn sàng)
+    if (window.firebaseReady && window.currentUserId) {
+      const userDocRef = doc(window.firebaseDb, 'reports', window.currentUserId);
+      setDoc(userDocRef, data, { merge: true })
+        .then(() => {
+          console.log('✓ Dữ liệu được lưu lên Firebase');
+          updateStorageInfo();
+        })
+        .catch((error) => {
+          console.error('Lỗi lưu Firebase:', error);
+          updateStorageInfo();
+        });
+    }
+  } catch (e) {
+    console.error('Lỗi lưu dữ liệu:', e);
+  }
+}
+
+function loadDataFromFirebase() {
+  try {
+    if (!window.firebaseReady || !window.currentUserId) {
+      console.log('Firebase chưa sẵn sàng, dùng localStorage');
+      loadDataFromLocalStorage();
+      return;
+    }
+
+    const userDocRef = doc(window.firebaseDb, 'reports', window.currentUserId);
+    
+    // Dùng real-time listener để tự động cập nhật khi có thay đổi
+    onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        var data = docSnap.data();
+        console.log('✓ Tải dữ liệu từ Firebase');
+        
+        if (data.campaignRows && data.campaignRows.length) {
+          campaignRows = data.campaignRows;
+          renderCampaignTable(campaignRows);
+        }
+        if (data.adsRows && data.adsRows.length) {
+          adsRows = data.adsRows;
+          if (data.leadMap) leadMap = data.leadMap;
+          renderAdsTable();
+        }
+        
+        // Lưu vào localStorage làm cache
+        localStorage.setItem('reportData', JSON.stringify(data));
+        updateStorageInfo();
+      } else {
+        console.log('Không có dữ liệu trên Firebase, dùng localStorage');
+        loadDataFromLocalStorage();
+      }
+    }, (error) => {
+      console.error('Lỗi tải Firebase:', error);
+      console.log('Fallback: dùng localStorage');
+      loadDataFromLocalStorage();
+    });
+  } catch (e) {
+    console.error('Lỗi khi tải từ Firebase:', e);
+    loadDataFromLocalStorage();
+  }
+}
+
+// Load từ localStorage (nếu Firebase không kết nối được)
+function loadDataFromLocalStorage() {
+  try {
+    var stored = localStorage.getItem('reportData');
+    if (!stored) return false;
+    var data = JSON.parse(stored);
+    if (data.campaignRows && data.campaignRows.length) {
+      campaignRows = data.campaignRows;
+      renderCampaignTable(campaignRows);
+    }
+    if (data.adsRows && data.adsRows.length) {
+      adsRows = data.adsRows;
+      if (data.leadMap) leadMap = data.leadMap;
+      renderAdsTable();
+    }
+    updateStorageInfo();
+    return true;
+  } catch (e) {
+    console.error('Lỗi tải dữ liệu:', e);
+    return false;
+  }
+}
+
+function clearAllStoredData() {
+  if (confirm('Bạn có chắc muốn xóa TẤT CẢ dữ liệu đã lưu? (Hành động này không thể hoàn tác)')) {
+    try {
+      // Xóa Firebase
+      if (window.firebaseReady && window.currentUserId) {
+        const userDocRef = doc(window.firebaseDb, 'reports', window.currentUserId);
+        setDoc(userDocRef, {}, { merge: true })
+          .then(() => console.log('✓ Dữ liệu Firebase đã xóa'))
+          .catch((err) => console.error('Lỗi xóa Firebase:', err));
+      }
+      
+      // Xóa localStorage
+      localStorage.removeItem('reportData');
+      campaignRows = null;
+      adsRows = null;
+      leadMap = null;
+      
+      setTimeout(() => location.reload(), 500);
+    } catch (e) {
+      console.error('Lỗi khi xóa:', e);
+      location.reload();
+    }
+  }
+}
+
+function updateStorageInfo() {
+  try {
+    var stored = localStorage.getItem('reportData');
+    var infoEl = document.getElementById('storage-info');
+    
+    if (!infoEl) return;
+    
+    var firebaseStatus = window.firebaseReady ? '☁️ Firebase' : '⚠️ Firebase (offline)';
+    var localStatus = stored ? '💾 Local' : '(trống)';
+    
+    if (stored) {
+      var data = JSON.parse(stored);
+      var info = firebaseStatus + ' • ' + localStatus + ' • Lưu lúc: ' + data.timestamp;
+      infoEl.textContent = info;
+      infoEl.style.color = window.firebaseReady ? '#16a34a' : '#f59e0b';
+    } else {
+      infoEl.textContent = 'Chưa có dữ liệu được lưu';
+      infoEl.style.color = 'var(--muted)';
+    }
+  } catch (e) {
+    console.error('Lỗi cập nhật info:', e);
+  }
+}
+
+/* Khôi phục dữ liệu khi trang load */
+window.addEventListener('load', function() {
+  // Đợi Firebase sẵn sàng rồi tải dữ liệu
+  if (window.firebaseReady) {
+    loadDataFromFirebase();
+  } else {
+    // Firebase chưa sẵn sàng, thử lại sau 1s
+    setTimeout(() => {
+      loadDataFromFirebase();
+    }, 1000);
+  }
+});
 </script>
 </body>
 </html>
