@@ -2667,6 +2667,12 @@
   window.firebaseDb = db;
   window.currentUserId = null;
   window.firebaseReady = false;
+  
+  // Export Firestore functions to global scope
+  window.firebaseDoc = doc;
+  window.firebaseSetDoc = setDoc;
+  window.firebaseGetDoc = getDoc;
+  window.firebaseOnSnapshot = onSnapshot;
 
   // Initialize Firebase and authenticate
   signInAnonymously(auth)
@@ -2674,12 +2680,17 @@
       window.currentUserId = result.user.uid;
       window.firebaseReady = true;
       console.log("✓ Firebase connected:", window.currentUserId);
-      updateStorageInfo();
-      loadDataFromFirebase();
+      // Delay để chắc chắn các hàm đã được định nghĩa
+      setTimeout(() => {
+        if (window.updateStorageInfo) updateStorageInfo();
+        if (window.loadDataFromFirebase) loadDataFromFirebase();
+      }, 100);
     })
     .catch((error) => {
       console.error("Firebase Auth Error:", error);
-      updateStorageInfo();
+      setTimeout(() => {
+        if (window.updateStorageInfo) updateStorageInfo();
+      }, 100);
     });
 
   // Listen for auth state changes
@@ -3093,8 +3104,8 @@ function saveDataToFirebase() {
     
     // Lưu vào Firebase (nếu sẵn sàng)
     if (window.firebaseReady && window.currentUserId) {
-      const userDocRef = doc(window.firebaseDb, 'reports', window.currentUserId);
-      setDoc(userDocRef, data, { merge: true })
+      const userDocRef = window.firebaseDoc(window.firebaseDb, 'reports', window.currentUserId);
+      window.firebaseSetDoc(userDocRef, data, { merge: true })
         .then(() => {
           console.log('✓ Dữ liệu được lưu lên Firebase');
           updateStorageInfo();
@@ -3117,10 +3128,10 @@ function loadDataFromFirebase() {
       return;
     }
 
-    const userDocRef = doc(window.firebaseDb, 'reports', window.currentUserId);
+    const userDocRef = window.firebaseDoc(window.firebaseDb, 'reports', window.currentUserId);
     
     // Dùng real-time listener để tự động cập nhật khi có thay đổi
-    onSnapshot(userDocRef, (docSnap) => {
+    window.firebaseOnSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         var data = docSnap.data();
         console.log('✓ Tải dữ liệu từ Firebase');
@@ -3181,8 +3192,8 @@ function clearAllStoredData() {
     try {
       // Xóa Firebase
       if (window.firebaseReady && window.currentUserId) {
-        const userDocRef = doc(window.firebaseDb, 'reports', window.currentUserId);
-        setDoc(userDocRef, {}, { merge: true })
+        const userDocRef = window.firebaseDoc(window.firebaseDb, 'reports', window.currentUserId);
+        window.firebaseSetDoc(userDocRef, {}, { merge: true })
           .then(() => console.log('✓ Dữ liệu Firebase đã xóa'))
           .catch((err) => console.error('Lỗi xóa Firebase:', err));
       }
@@ -3227,6 +3238,12 @@ function updateStorageInfo() {
 
 /* Khôi phục dữ liệu khi trang load */
 window.addEventListener('load', function() {
+  // Export các hàm vào window
+  window.updateStorageInfo = updateStorageInfo;
+  window.loadDataFromFirebase = loadDataFromFirebase;
+  window.saveDataToFirebase = saveDataToFirebase;
+  window.clearAllStoredData = clearAllStoredData;
+  
   // Đợi Firebase sẵn sàng rồi tải dữ liệu
   if (window.firebaseReady) {
     loadDataFromFirebase();
