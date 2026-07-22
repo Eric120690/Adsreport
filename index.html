@@ -722,9 +722,9 @@ function saveDataToFirebase() {
     // Lưu vào localStorage (backup local)
     localStorage.setItem('reportData', JSON.stringify(data));
     
-    // Lưu vào Firebase (nếu sẵn sàng)
-    if (window.firebaseReady && window.currentUserId) {
-      const userDocRef = window.firebaseDoc(window.firebaseDb, 'reports', window.currentUserId);
+    // Lưu vào Firebase (nếu sẵn sàng) - dùng CHUNG 1 document cho mọi người/thiết bị
+    if (window.firebaseReady) {
+      const userDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'report_data');
       window.firebaseSetDoc(userDocRef, data, { merge: true })
         .then(() => {
           console.log('✓ Dữ liệu được lưu lên Firebase');
@@ -744,13 +744,13 @@ function saveDataToFirebase() {
 
 function loadDataFromFirebase() {
   try {
-    if (!window.firebaseReady || !window.currentUserId) {
+    if (!window.firebaseReady) {
       console.log('Firebase chưa sẵn sàng, dùng localStorage');
       loadDataFromLocalStorage();
       return;
     }
 
-    const userDocRef = window.firebaseDoc(window.firebaseDb, 'reports', window.currentUserId);
+    const userDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'report_data');
     
     // Dùng real-time listener để tự động cập nhật khi có thay đổi
     window.firebaseOnSnapshot(userDocRef, (docSnap) => {
@@ -814,8 +814,8 @@ function clearAllStoredData() {
   if (confirm('Bạn có chắc muốn xóa TẤT CẢ dữ liệu đã lưu? (Hành động này không thể hoàn tác)')) {
     try {
       // Xóa Firebase
-      if (window.firebaseReady && window.currentUserId) {
-        const userDocRef = window.firebaseDoc(window.firebaseDb, 'reports', window.currentUserId);
+      if (window.firebaseReady) {
+        const userDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'report_data');
         window.firebaseSetDoc(userDocRef, {}, { merge: true })
           .then(() => console.log('✓ Dữ liệu Firebase đã xóa'))
           .catch((err) => console.error('Lỗi xóa Firebase:', err));
