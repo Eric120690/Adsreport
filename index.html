@@ -292,7 +292,6 @@
   // Sẵn sàng dùng ngay, không cần đăng nhập
   setTimeout(() => {
     if (window.updateStorageInfo) updateStorageInfo();
-    if (window.loadDataFromFirebase) loadDataFromFirebase();
   }, 100);
 </script>
 
@@ -565,10 +564,11 @@ function handleCampaignFile() {
   }).filter(function(r) { return r.id !== '' && r.name !== ''; });
   if (!rows.length) { setStatus('status-campaign', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
   renderCampaignTable(rows);
+  saveCampaignData();
   setStatus('status-campaign', 'Đã cập nhật ' + rows.length + ' campaign vào tab "Theo Campaign".', false);
 }
 
-function renderCampaignTable(rows, skipSave) {
+function renderCampaignTable(rows) {
   campaignRows = rows;
   rows.sort(function(a, b) { return b.spend - a.spend; });
   var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
@@ -591,8 +591,6 @@ function renderCampaignTable(rows, skipSave) {
   cards[0].textContent = formatVND(total);
   cards[1].textContent = rows.length;
   cards[2].textContent = activeCount;
-  if (!skipSave) saveDataToFirebase();
-  updateStorageInfo();
 }
 
 /* ---- File 1: Campaign ---- */
@@ -619,8 +617,9 @@ function handleAdsFile() {
     };
   }).filter(function(r) { return r.id !== '' && r.name !== ''; });
   if (!adsRows.length) { setStatus('status-ads', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
-  setStatus('status-ads', 'Đã tải ' + adsRows.length + ' ads.' + (leadMap ? ' Đã ghép với dữ liệu lead hiện có.' : ' Tải thêm file lead (mục 3) để tính Số lead / Chi phí Lead.'), false);
   renderAdsTable();
+  saveAdsData();
+  setStatus('status-ads', 'Đã tải ' + adsRows.length + ' ads.' + (leadMap ? ' Đã ghép với dữ liệu lead hiện có.' : ' Tải thêm file lead (mục 3) để tính Số lead / Chi phí Lead.'), false);
 }
 
 function handleLeadFile() {
@@ -635,11 +634,12 @@ function handleLeadFile() {
     var id = String(r[idKey] == null ? '' : r[idKey]).trim();
     if (id !== '' && id !== 'undefined') { leadMap[id] = parseNum(r[leadKey]); count++; }
   });
-  setStatus('status-lead', 'Đã tải lead cho ' + count + ' ads.' + (adsRows ? ' Đã ghép với file Ads ID.' : ' Tải thêm file Ads ID (mục 2) để ghép dữ liệu.'), false);
   renderAdsTable();
+  saveLeadsData();
+  setStatus('status-lead', 'Đã tải lead cho ' + count + ' ads.' + (adsRows ? ' Đã ghép với file Ads ID.' : ' Tải thêm file Ads ID (mục 2) để ghép dữ liệu.'), false);
 }
 
-function renderAdsTable(skipSave) {
+function renderAdsTable() {
   if (!adsRows) return;
   var rows = adsRows.map(function(r) {
     var leads = (leadMap && leadMap.hasOwnProperty(r.id)) ? leadMap[r.id] : -1;
@@ -674,94 +674,124 @@ function renderAdsTable(skipSave) {
   sortState.leads = 0; sortState.cpl = 0;
   document.getElementById('arrow-leads').textContent = '⇅';
   document.getElementById('arrow-cpl').textContent = '⇅';
-  if (!skipSave) saveDataToFirebase();
-  updateStorageInfo();
 }
 
 /* ========== FIREBASE + LOCALSTORAGE ========== */
 
-// Lưu dữ liệu vào Firebase Firestore
-function saveDataToFirebase() {
-  try {
-    var data = {
-      campaignRows: campaignRows,
-      adsRows: adsRows,
-      leadMap: leadMap,
-      timestamp: new Date().toLocaleString('vi-VN'),
-      syncedAt: new Date().toISOString()
-    };
+// Lưu riêng từng loại dữ liệu lên Firebase - mỗi loại 1 document riêng
+// để tránh gộp chung thành 1 document quá lớn (giới hạn Firestore là 1MB/document)
+// và để mỗi lần upload chỉ cần ghi đúng phần dữ liệu vừa thay đổi (nhanh hơn).
 
-    if (window.firebaseReady) {
-      const userDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'report_data');
-      window.firebaseSetDoc(userDocRef, data, { merge: true })
-        .then(() => {
-          console.log('✓ Dữ liệu được lưu lên Firebase');
-          window.firebaseError = null;
-          window.lastSyncedAt = data.timestamp;
-          updateStorageInfo();
-        })
-        .catch((error) => {
-          console.error('Lỗi lưu Firebase:', error);
-          window.firebaseError = 'Lỗi lưu Firebase: ' + (error.code || error.message || error);
-          updateStorageInfo();
-        });
-    }
-  } catch (e) {
-    console.error('Lỗi lưu dữ liệu:', e);
-  }
+function saveCampaignData() {
+  if (!window.firebaseReady) return;
+  try {
+    var docRef = window.firebaseDoc(window.firebaseDb, 'shared', 'campaigns');
+    var data = { rows: campaignRows, timestamp: new Date().toLocaleString('vi-VN') };
+    window.firebaseSetDoc(docRef, data)
+      .then(() => { window.firebaseError = null; window.lastSyncedAt = data.timestamp; updateStorageInfo(); })
+      .catch((error) => {
+        console.error('Lỗi lưu campaigns:', error);
+        window.firebaseError = 'Lỗi lưu Campaign: ' + (error.code || error.message || error);
+        updateStorageInfo();
+      });
+  } catch (e) { console.error('Lỗi lưu campaigns:', e); }
+}
+
+function saveAdsData() {
+  if (!window.firebaseReady) return;
+  try {
+    var docRef = window.firebaseDoc(window.firebaseDb, 'shared', 'ads');
+    var data = { rows: adsRows, timestamp: new Date().toLocaleString('vi-VN') };
+    window.firebaseSetDoc(docRef, data)
+      .then(() => { window.firebaseError = null; window.lastSyncedAt = data.timestamp; updateStorageInfo(); })
+      .catch((error) => {
+        console.error('Lỗi lưu ads:', error);
+        window.firebaseError = 'Lỗi lưu Ads: ' + (error.code || error.message || error);
+        updateStorageInfo();
+      });
+  } catch (e) { console.error('Lỗi lưu ads:', e); }
+}
+
+function saveLeadsData() {
+  if (!window.firebaseReady) return;
+  try {
+    var docRef = window.firebaseDoc(window.firebaseDb, 'shared', 'leads');
+    var data = { map: leadMap, timestamp: new Date().toLocaleString('vi-VN') };
+    window.firebaseSetDoc(docRef, data)
+      .then(() => { window.firebaseError = null; window.lastSyncedAt = data.timestamp; updateStorageInfo(); })
+      .catch((error) => {
+        console.error('Lỗi lưu leads:', error);
+        window.firebaseError = 'Lỗi lưu Lead: ' + (error.code || error.message || error);
+        updateStorageInfo();
+      });
+  } catch (e) { console.error('Lỗi lưu leads:', e); }
 }
 
 function loadDataFromFirebase() {
-  try {
-    if (!window.firebaseReady) {
-      console.log('Firebase chưa sẵn sàng.');
-      updateStorageInfo();
-      return;
-    }
+  if (!window.firebaseReady) { updateStorageInfo(); return; }
 
-    const userDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'report_data');
-    
-    // Dùng real-time listener để tự động cập nhật khi có thay đổi
-    window.firebaseOnSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        var data = docSnap.data();
-        console.log('✓ Tải dữ liệu từ Firebase');
-        
-        if (data.campaignRows && data.campaignRows.length) {
-          campaignRows = data.campaignRows;
-          renderCampaignTable(campaignRows, true);
-        }
-        if (data.adsRows && data.adsRows.length) {
-          adsRows = data.adsRows;
-          if (data.leadMap) leadMap = data.leadMap;
-          renderAdsTable(true);
-        }
-        
+  var campaignDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'campaigns');
+  window.firebaseOnSnapshot(campaignDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+      var data = docSnap.data();
+      if (data.rows && data.rows.length) {
+        campaignRows = data.rows;
+        renderCampaignTable(campaignRows);
         window.lastSyncedAt = data.timestamp;
         updateStorageInfo();
-      } else {
-        console.log('Chưa có dữ liệu trên Firebase.');
+      }
+    }
+  }, (error) => {
+    console.error('Lỗi tải campaigns:', error);
+    window.firebaseError = 'Lỗi tải Campaign: ' + (error.code || error.message || error);
+    updateStorageInfo();
+  });
+
+  var adsDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'ads');
+  window.firebaseOnSnapshot(adsDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+      var data = docSnap.data();
+      if (data.rows && data.rows.length) {
+        adsRows = data.rows;
+        renderAdsTable();
+        window.lastSyncedAt = data.timestamp;
         updateStorageInfo();
       }
-    }, (error) => {
-      console.error('Lỗi tải Firebase:', error);
-      window.firebaseError = 'Lỗi tải Firebase: ' + (error.code || error.message || error);
-      updateStorageInfo();
-    });
-  } catch (e) {
-    console.error('Lỗi khi tải từ Firebase:', e);
-  }
+    }
+  }, (error) => {
+    console.error('Lỗi tải ads:', error);
+    window.firebaseError = 'Lỗi tải Ads: ' + (error.code || error.message || error);
+    updateStorageInfo();
+  });
+
+  var leadsDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'leads');
+  window.firebaseOnSnapshot(leadsDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+      var data = docSnap.data();
+      if (data.map) {
+        leadMap = data.map;
+        renderAdsTable();
+        window.lastSyncedAt = data.timestamp;
+        updateStorageInfo();
+      }
+    }
+  }, (error) => {
+    console.error('Lỗi tải leads:', error);
+    window.firebaseError = 'Lỗi tải Lead: ' + (error.code || error.message || error);
+    updateStorageInfo();
+  });
 }
 
 function clearAllStoredData() {
   if (confirm('Bạn có chắc muốn xóa TẤT CẢ dữ liệu đã lưu trên Firebase? (Hành động này không thể hoàn tác)')) {
     try {
-      // Xóa Firebase
       if (window.firebaseReady) {
-        const userDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'report_data');
-        window.firebaseSetDoc(userDocRef, {}, { merge: false })
-          .then(() => console.log('✓ Dữ liệu Firebase đã xóa'))
-          .catch((err) => console.error('Lỗi xóa Firebase:', err));
+        ['campaigns', 'ads', 'leads'].forEach(function(name) {
+          var docRef = window.firebaseDoc(window.firebaseDb, 'shared', name);
+          window.firebaseSetDoc(docRef, {})
+            .then(() => console.log('✓ Đã xóa ' + name))
+            .catch((err) => console.error('Lỗi xóa ' + name + ':', err));
+        });
       }
 
       campaignRows = null;
@@ -806,7 +836,9 @@ window.addEventListener('load', function() {
   // Export các hàm vào window
   window.updateStorageInfo = updateStorageInfo;
   window.loadDataFromFirebase = loadDataFromFirebase;
-  window.saveDataToFirebase = saveDataToFirebase;
+  window.saveCampaignData = saveCampaignData;
+  window.saveAdsData = saveAdsData;
+  window.saveLeadsData = saveLeadsData;
   window.clearAllStoredData = clearAllStoredData;
   
   // Đợi Firebase sẵn sàng rồi tải dữ liệu
