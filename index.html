@@ -307,6 +307,7 @@
     })
     .catch((error) => {
       console.error("Firebase Auth Error:", error);
+      window.firebaseError = 'Đăng nhập Firebase lỗi: ' + (error.code || error.message || error);
       setTimeout(() => {
         if (window.updateStorageInfo) updateStorageInfo();
       }, 100);
@@ -727,10 +728,12 @@ function saveDataToFirebase() {
       window.firebaseSetDoc(userDocRef, data, { merge: true })
         .then(() => {
           console.log('✓ Dữ liệu được lưu lên Firebase');
+          window.firebaseError = null;
           updateStorageInfo();
         })
         .catch((error) => {
           console.error('Lỗi lưu Firebase:', error);
+          window.firebaseError = 'Lỗi lưu Firebase: ' + (error.code || error.message || error);
           updateStorageInfo();
         });
     }
@@ -774,6 +777,7 @@ function loadDataFromFirebase() {
       }
     }, (error) => {
       console.error('Lỗi tải Firebase:', error);
+      window.firebaseError = 'Lỗi tải Firebase: ' + (error.code || error.message || error);
       console.log('Fallback: dùng localStorage');
       loadDataFromLocalStorage();
     });
@@ -840,7 +844,14 @@ function updateStorageInfo() {
     
     var firebaseStatus = window.firebaseReady ? '☁️ Firebase' : '⚠️ Firebase (offline)';
     var localStatus = stored ? '💾 Local' : '(trống)';
-    
+
+    if (window.firebaseError) {
+      var errInfo = firebaseStatus + ' • ' + localStatus + ' • ❌ ' + window.firebaseError;
+      infoEl.textContent = errInfo;
+      infoEl.style.color = '#dc2626';
+      return;
+    }
+
     if (stored) {
       var data = JSON.parse(stored);
       var info = firebaseStatus + ' • ' + localStatus + ' • Lưu lúc: ' + data.timestamp;
