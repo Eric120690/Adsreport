@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Báo cáo chi phí quảng cáo - TEKY 4 (1-20/07/2026)</title>
+<title>Báo cáo chi phí quảng cáo - TEKY 4 (1-21/07/2026)</title>
 <style>
   :root {
     --card: #ffffff;
@@ -83,6 +83,39 @@
   .table-wrap table { box-shadow: none; }
 
   footer { margin-top: 16px; font-size: 12px; color: var(--muted); text-align: center; }
+
+  .upload-section {
+    background: var(--card); border-radius: 10px; padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px;
+  }
+  .upload-section h3 { margin: 0 0 6px 0; font-size: 15px; }
+  .upload-section .hint { color: var(--muted); font-size: 12.5px; margin: 0 0 12px 0; line-height: 1.5; }
+  .upload-section input[type="file"] { font-size: 13px; margin-right: 10px; }
+  .upload-section button {
+    background: var(--accent); color: white; border: none; border-radius: 6px;
+    padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .upload-section button:hover { background: #1d4ed8; }
+  .upload-status { margin-top: 10px; font-size: 12.5px; min-height: 16px; }
+  .upload-status.success { color: var(--active); }
+  .upload-status.error { color: #dc2626; }
+
+  .mapping-box {
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px 16px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 12px 0;
+  }
+  .mapping-box.visible { display: grid; }
+  .map-row { display: flex; flex-direction: column; gap: 4px; }
+  .map-row label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .map-row select {
+    font-size: 13px; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1;
+    background: white; color: var(--text);
+  }
   @media (max-width: 640px) {
     .name-cell { max-width: 160px; }
     th, td { padding: 8px; font-size: 12px; }
@@ -93,27 +126,28 @@
   <div class="container">
     <header>
       <h1>Báo cáo chi phí quảng cáo Facebook - TEKY 4</h1>
-      <div class="subtitle">Tài khoản: TEKY 4 (ID: 1882624005343084) · Khoảng thời gian: 01/07/2026 – 20/07/2026</div>
+      <div class="subtitle">Tài khoản: TEKY 4 (ID: 1882624005343084) · Khoảng thời gian: 01/07/2026 – 21/07/2026</div>
     </header>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('campaign')">Theo Campaign</button>
       <button class="tab-btn" onclick="switchTab('ads')">Theo Ads</button>
+      <button class="tab-btn" onclick="switchTab('update')">Cập nhật dữ liệu</button>
     </div>
 
     <div id="campaign-panel" class="tab-panel active">
       <div class="summary">
         <div class="card">
           <div class="label">Tổng chi phí đã sử dụng</div>
-          <div class="value">374.439.060 ₫</div>
+          <div class="value">398.489.334 ₫</div>
         </div>
         <div class="card">
           <div class="label">Số campaign có phát sinh chi phí</div>
-          <div class="value">72</div>
+          <div class="value">82</div>
         </div>
         <div class="card">
           <div class="label">Đang hoạt động</div>
-          <div class="value">18</div>
+          <div class="value">35</div>
         </div>
       </div>
       <div class="table-wrap">
@@ -129,35 +163,35 @@
         <td class="mono">120247452388360368</td>
         <td class="name-cell">Zone B_Coding_Engagement_Mess_LAL_HCM_11-05-2026</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">29.569.558 ₫</td>
+        <td class="spend">31.759.683 ₫</td>
       </tr>
       <tr>
         <td>2</td>
         <td class="mono">120247988433300368</td>
         <td class="name-cell">Zone A&B_Robotics_Engagement_Mess_LAL_16-05-2026</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">24.306.130 ₫</td>
+        <td class="spend">25.585.108 ₫</td>
       </tr>
       <tr>
         <td>3</td>
         <td class="mono">120246092856530368</td>
         <td class="name-cell">Zone A_Robotics_Engagement_Mess_LAL_21-04-2026 | Thi – Copy 2</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">21.960.074 ₫</td>
+        <td class="spend">22.830.956 ₫</td>
       </tr>
       <tr>
         <td>4</td>
         <td class="mono">120248716290560368</td>
         <td class="name-cell">3 - Zone A_Summer Camp_Engagement_Mess_Direct_25-05-0206</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">19.953.730 ₫</td>
+        <td><span class="badge paused">Tạm dừng</span></td>
+        <td class="spend">20.745.151 ₫</td>
       </tr>
       <tr>
         <td>5</td>
         <td class="mono">120250069799160368</td>
         <td class="name-cell">Zone B_Summer Camp_Engagement_Mess_Direct_08-06-2026 - Copy</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">19.765.072 ₫</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">19.914.041 ₫</td>
       </tr>
       <tr>
         <td>6</td>
@@ -168,24 +202,24 @@
       </tr>
       <tr>
         <td>7</td>
+        <td class="mono">120250075364850368</td>
+        <td class="name-cell">TEST 5 Zone B_Summer Camp_Engagement_Mess_Direct_08-06-2026 - Copy 4</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">18.693.930 ₫</td>
+      </tr>
+      <tr>
+        <td>8</td>
         <td class="mono">120250076118460368</td>
         <td class="name-cell">Zone B_Summer Camp_Engagement_Mess_Direct_08-06-2026 - Copy 5</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">15.714.597 ₫</td>
       </tr>
       <tr>
-        <td>8</td>
-        <td class="mono">120250075364850368</td>
-        <td class="name-cell">TEST 5 Zone B_Summer Camp_Engagement_Mess_Direct_08-06-2026 - Copy 4</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">15.701.755 ₫</td>
-      </tr>
-      <tr>
         <td>9</td>
         <td class="mono">120252324980380368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_01-07-2026 -3</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">14.486.973 ₫</td>
+        <td class="spend">15.701.564 ₫</td>
       </tr>
       <tr>
         <td>10</td>
@@ -196,59 +230,59 @@
       </tr>
       <tr>
         <td>11</td>
-        <td class="mono">120251192063020368</td>
-        <td class="name-cell">Q3 + Q7 Zone B_3D-Multimedia_Engagement_Mess_Direct_18-06-2026</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">11.047.605 ₫</td>
-      </tr>
-      <tr>
-        <td>12</td>
-        <td class="mono">120252324939520368</td>
-        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_01-07-2026 - 2</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">10.444.388 ₫</td>
-      </tr>
-      <tr>
-        <td>13</td>
         <td class="mono">120252805440160368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_LAL_15-07-2026</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">10.419.902 ₫</td>
+        <td class="spend">12.110.560 ₫</td>
       </tr>
       <tr>
-        <td>14</td>
+        <td>12</td>
         <td class="mono">120252807304240368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_LAL_15-07-2026</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">10.113.929 ₫</td>
+        <td class="spend">11.749.670 ₫</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td class="mono">120251192063020368</td>
+        <td class="name-cell">Q3 + Q7 Zone B_3D-Multimedia_Engagement_Mess_Direct_18-06-2026</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">11.490.281 ₫</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td class="mono">120252324939520368</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_01-07-2026 - 2</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">11.319.251 ₫</td>
       </tr>
       <tr>
         <td>15</td>
         <td class="mono">120248206742980368</td>
         <td class="name-cell">Test-Zone A_Summer Camp_Engagement_Mess_Direct_18-05-2026_1 - Copy</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">9.937.806 ₫</td>
+        <td class="spend">10.372.833 ₫</td>
       </tr>
       <tr>
         <td>16</td>
         <td class="mono">120252433837450368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_04-07-2026</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">9.394.226 ₫</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">9.635.876 ₫</td>
       </tr>
       <tr>
         <td>17</td>
         <td class="mono">120248226895530368</td>
         <td class="name-cell">Zone A&B_ReMKT_Engagement_Mess_Direct_20-05-2026 - Copy</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">7.322.314 ₫</td>
+        <td class="spend">8.311.640 ₫</td>
       </tr>
       <tr>
         <td>18</td>
         <td class="mono">120252599060760368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_09-07-2026.</td>
         <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">6.679.901 ₫</td>
+        <td class="spend">7.488.997 ₫</td>
       </tr>
       <tr>
         <td>19</td>
@@ -259,31 +293,31 @@
       </tr>
       <tr>
         <td>20</td>
+        <td class="mono">120252325211340368</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_01-07-2026 - 7</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">5.489.245 ₫</td>
+      </tr>
+      <tr>
+        <td>21</td>
         <td class="mono">120248219163580368</td>
         <td class="name-cell">TEST-Zone A_Summer Camp_Engagement_Mess_Direct_20-05-2026</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">5.457.734 ₫</td>
       </tr>
       <tr>
-        <td>21</td>
+        <td>22</td>
         <td class="mono">120252324160920368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_01-07-2026 - 4</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">5.452.407 ₫</td>
       </tr>
       <tr>
-        <td>22</td>
-        <td class="mono">120252325211340368</td>
-        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_01-07-2026 - 7</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">5.270.960 ₫</td>
-      </tr>
-      <tr>
         <td>23</td>
         <td class="mono">120248149489930368</td>
         <td class="name-cell">Test-Zone B_Summer Camp_Engagement_Mess_Direct_18-05-2026_1</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">4.639.398 ₫</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">4.811.392 ₫</td>
       </tr>
       <tr>
         <td>24</td>
@@ -294,17 +328,17 @@
       </tr>
       <tr>
         <td>25</td>
+        <td class="mono">120248221857970368</td>
+        <td class="name-cell">Zone A&B_ReMKT_Engagement_Mess_Direct_20-05-2026</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">4.471.139 ₫</td>
+      </tr>
+      <tr>
+        <td>26</td>
         <td class="mono">120252570234360368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_08-07-2026 1</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">4.080.444 ₫</td>
-      </tr>
-      <tr>
-        <td>26</td>
-        <td class="mono">120248221857970368</td>
-        <td class="name-cell">Zone A&B_ReMKT_Engagement_Mess_Direct_20-05-2026</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">3.551.287 ₫</td>
       </tr>
       <tr>
         <td>27</td>
@@ -336,143 +370,143 @@
       </tr>
       <tr>
         <td>31</td>
+        <td class="mono">120252604400110368</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_09-07-2026. - Copy</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">2.845.900 ₫</td>
+      </tr>
+      <tr>
+        <td>32</td>
         <td class="mono">120252429302450368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_04-07-2026</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">2.770.481 ₫</td>
       </tr>
       <tr>
-        <td>32</td>
+        <td>33</td>
         <td class="mono">120247988622170368</td>
         <td class="name-cell">Zone A_Coding_Engagement_Mess_Direct_160526</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">2.664.444 ₫</td>
-      </tr>
-      <tr>
-        <td>33</td>
-        <td class="mono">120252604400110368</td>
-        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_09-07-2026. - Copy</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">2.637.179 ₫</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">2.715.215 ₫</td>
       </tr>
       <tr>
         <td>34</td>
+        <td class="mono">120252922654280368</td>
+        <td class="name-cell">Zone A_Mess_HN_1807</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">2.024.501 ₫</td>
+      </tr>
+      <tr>
+        <td>35</td>
+        <td class="mono">120252922866520368</td>
+        <td class="name-cell">Zone B_Mess_TP.HCM_1807</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">1.985.312 ₫</td>
+      </tr>
+      <tr>
+        <td>36</td>
+        <td class="mono">120252870188360368</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">1.974.577 ₫</td>
+      </tr>
+      <tr>
+        <td>37</td>
         <td class="mono">120252873773970368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_17-07-2026. 3</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.824.489 ₫</td>
       </tr>
       <tr>
-        <td>35</td>
+        <td>38</td>
         <td class="mono">120252873746730368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_17-07-2026. 2</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.824.360 ₫</td>
       </tr>
       <tr>
-        <td>36</td>
+        <td>39</td>
         <td class="mono">120252873854470368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_17-07-2026. 5</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.804.089 ₫</td>
       </tr>
       <tr>
-        <td>37</td>
+        <td>40</td>
         <td class="mono">120252870832550368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026. 2</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.797.904 ₫</td>
       </tr>
       <tr>
-        <td>38</td>
+        <td>41</td>
         <td class="mono">120252873810150368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_17-07-2026. 4</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.784.469 ₫</td>
       </tr>
       <tr>
-        <td>39</td>
+        <td>42</td>
         <td class="mono">120252873702640368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_17-07-2026. 1</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.783.406 ₫</td>
       </tr>
       <tr>
-        <td>40</td>
+        <td>43</td>
         <td class="mono">120252873523100368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_17-07-2026.</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.779.095 ₫</td>
       </tr>
       <tr>
-        <td>41</td>
-        <td class="mono">120252870188360368</td>
-        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026.</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">1.770.291 ₫</td>
-      </tr>
-      <tr>
-        <td>42</td>
+        <td>44</td>
         <td class="mono">120252872879050368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026. 4</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.768.034 ₫</td>
       </tr>
       <tr>
-        <td>43</td>
+        <td>45</td>
         <td class="mono">120252870608190368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026. 1</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.757.315 ₫</td>
       </tr>
       <tr>
-        <td>44</td>
+        <td>46</td>
         <td class="mono">120252873462370368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026. 5</td>
         <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">1.751.255 ₫</td>
+        <td class="spend">1.751.314 ₫</td>
       </tr>
       <tr>
-        <td>45</td>
+        <td>47</td>
         <td class="mono">120252872241910368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_17-07-2026. 3</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.722.792 ₫</td>
       </tr>
       <tr>
-        <td>46</td>
+        <td>48</td>
         <td class="mono">120252524409560368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_07-07-2026.</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.529.727 ₫</td>
       </tr>
       <tr>
-        <td>47</td>
+        <td>49</td>
         <td class="mono">120247688926330368</td>
         <td class="name-cell">Zone A_Summer Camp_Engagement_Mess_Direct_13-05-2026</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.521.489 ₫</td>
       </tr>
       <tr>
-        <td>48</td>
-        <td class="mono">120252922654280368</td>
-        <td class="name-cell">Zone A_Mess_HN_1807</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">1.510.731 ₫</td>
-      </tr>
-      <tr>
-        <td>49</td>
+        <td>50</td>
         <td class="mono">120252523294100368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_08-07-2026.</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">1.475.090 ₫</td>
-      </tr>
-      <tr>
-        <td>50</td>
-        <td class="mono">120252922866520368</td>
-        <td class="name-cell">Zone B_Mess_TP.HCM_1807</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">1.468.170 ₫</td>
       </tr>
       <tr>
         <td>51</td>
@@ -485,8 +519,8 @@
         <td>52</td>
         <td class="mono">120248365316420368</td>
         <td class="name-cell">TEST2-Zone B_Summer Camp_Engagement_Mess_Direct_21-05-2026 - Copy</td>
-        <td><span class="badge paused">Tạm dừng</span></td>
-        <td class="spend">1.163.403 ₫</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">1.276.758 ₫</td>
       </tr>
       <tr>
         <td>53</td>
@@ -588,50 +622,120 @@
       </tr>
       <tr>
         <td>67</td>
+        <td class="mono">120252965882360000</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_21-07-2026. 5</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">489.424 ₫</td>
+      </tr>
+      <tr>
+        <td>68</td>
+        <td class="mono">120252961662280000</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_21-07-2026. 1</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">482.103 ₫</td>
+      </tr>
+      <tr>
+        <td>69</td>
+        <td class="mono">120252965942040000</td>
+        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 1</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">457.493 ₫</td>
+      </tr>
+      <tr>
+        <td>70</td>
+        <td class="mono">120252961635180000</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_21-07-2026.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">410.410 ₫</td>
+      </tr>
+      <tr>
+        <td>71</td>
+        <td class="mono">120252966487720000</td>
+        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 5.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">403.499 ₫</td>
+      </tr>
+      <tr>
+        <td>72</td>
+        <td class="mono">120252966110800000</td>
+        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 2.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">390.213 ₫</td>
+      </tr>
+      <tr>
+        <td>73</td>
+        <td class="mono">120252965438490000</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_21-07-2026. 4</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">387.851 ₫</td>
+      </tr>
+      <tr>
+        <td>74</td>
+        <td class="mono">120252962252710000</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_21-07-2026. 3</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">386.281 ₫</td>
+      </tr>
+      <tr>
+        <td>75</td>
+        <td class="mono">120252965894100000</td>
+        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">328.463 ₫</td>
+      </tr>
+      <tr>
+        <td>76</td>
+        <td class="mono">120252966068480000</td>
+        <td class="name-cell">Zone A_All_Engagement_Mess_Direct_21-07-2026. 2</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">287.563 ₫</td>
+      </tr>
+      <tr>
+        <td>77</td>
+        <td class="mono">120252966513490368</td>
+        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 4.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">251.858 ₫</td>
+      </tr>
+      <tr>
+        <td>78</td>
+        <td class="mono">120252966540240368</td>
+        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 3.</td>
+        <td><span class="badge active">Đang chạy</span></td>
+        <td class="spend">250.703 ₫</td>
+      </tr>
+      <tr>
+        <td>79</td>
         <td class="mono">120252676925970368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_14-07-2026.</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">230.111 ₫</td>
       </tr>
       <tr>
-        <td>68</td>
+        <td>80</td>
         <td class="mono">120252772339160368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_14-07-2026. 1</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">220.214 ₫</td>
       </tr>
       <tr>
-        <td>69</td>
+        <td>81</td>
         <td class="mono">120252773655130368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_14-07-2026. 3</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">186.316 ₫</td>
       </tr>
       <tr>
-        <td>70</td>
+        <td>82</td>
         <td class="mono">120252772718450368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_14-07-2026. 2</td>
         <td><span class="badge paused">Tạm dừng</span></td>
         <td class="spend">178.964 ₫</td>
       </tr>
-      <tr>
-        <td>71</td>
-        <td class="mono">120252966540240368</td>
-        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 3.</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">0 ₫</td>
-      </tr>
-      <tr>
-        <td>72</td>
-        <td class="mono">120252966513490368</td>
-        <td class="name-cell">Zone B_All_Engagement_Mess_Direct_21-07-2026. 4.</td>
-        <td><span class="badge active">Đang chạy</span></td>
-        <td class="spend">0 ₫</td>
-      </tr>
           </tbody>
         </table>
       </div>
-      <footer>Chỉ hiển thị campaign có phát sinh chi phí trong khoảng 01–20/07/2026.</footer>
+      <footer>Chỉ hiển thị campaign có phát sinh chi phí trong khoảng 01–21/07/2026.</footer>
     </div>
 
     <div id="ads-panel" class="tab-panel">
@@ -642,7 +746,7 @@
         </div>
         <div class="card">
           <div class="label">Tổng số Lead</div>
-          <div class="value">477</div>
+          <div class="value">476</div>
         </div>
         <div class="card">
           <div class="label">Số ads có phát sinh chi phí</div>
@@ -664,32 +768,32 @@
             </tr>
           </thead>
           <tbody id="ads-tbody">
-      <tr data-leads="46" data-cpl="468461" data-spend="21549214">
+      <tr data-leads="49" data-cpl="439780" data-spend="21549214">
         <td>1</td>
         <td class="mono">120246092856570368</td>
         <td class="name-cell">Zone A_Robotics_Engagement_Mess_LAL+Sở thích_HCM_All_30- 48_Manual_Video_Outcome_🔺 3 THÁNG TRƯỚC: KHÔNG DÁM NÓI 1 CÂU 🔹 HÔM NAY: CON ĐỨNG THUYẾT TRÌNH DỰ ÁN AI TRƯỚC LỚP | Thi</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">21.549.214 ₫</td>
-        <td class="num">46</td>
-        <td class="spend">468.461 ₫</td>
+        <td class="num">49</td>
+        <td class="spend">439.780 ₫</td>
       </tr>
-      <tr data-leads="33" data-cpl="604578" data-spend="19951089">
+      <tr data-leads="32" data-cpl="623472" data-spend="19951089">
         <td>2</td>
         <td class="mono">120248716290630368</td>
         <td class="name-cell">Zone A_Summer Camp_Engagement_Mess_Direct_parrent_HCM_All_28-51_Manual_Video_Outcome_ADS_526_30</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">19.951.089 ₫</td>
-        <td class="num">33</td>
-        <td class="spend">604.578 ₫</td>
+        <td class="num">32</td>
+        <td class="spend">623.472 ₫</td>
       </tr>
-      <tr data-leads="8" data-cpl="2448213" data-spend="19585703">
+      <tr data-leads="9" data-cpl="2176189" data-spend="19585703">
         <td>3</td>
         <td class="mono">120250070654870368</td>
         <td class="name-cell">Zone B_Summer Camp_Engagement_Mess_Direct_parrent_HCM_All_29-55_Manual_Video_Outcome_ADS_526_47</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">19.585.703 ₫</td>
-        <td class="num">8</td>
-        <td class="spend">2.448.213 ₫</td>
+        <td class="num">9</td>
+        <td class="spend">2.176.189 ₫</td>
       </tr>
       <tr data-leads="44" data-cpl="430845" data-spend="18957186">
         <td>4</td>
@@ -700,14 +804,14 @@
         <td class="num">44</td>
         <td class="spend">430.845 ₫</td>
       </tr>
-      <tr data-leads="31" data-cpl="506671" data-spend="15706799">
+      <tr data-leads="30" data-cpl="523560" data-spend="15706799">
         <td>5</td>
         <td class="mono">120250076118480368</td>
         <td class="name-cell">Zone B_Summer Camp_Engagement_Mess_Direct_parrent_HCM_All_29-55_Manual_Video_Outcome_ADS_526_58</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">15.706.799 ₫</td>
-        <td class="num">31</td>
-        <td class="spend">506.671 ₫</td>
+        <td class="num">30</td>
+        <td class="spend">523.560 ₫</td>
       </tr>
       <tr data-leads="16" data-cpl="730387" data-spend="11686190">
         <td>6</td>
@@ -718,23 +822,23 @@
         <td class="num">16</td>
         <td class="spend">730.387 ₫</td>
       </tr>
-      <tr data-leads="16" data-cpl="657410" data-spend="10518554">
+      <tr data-leads="12" data-cpl="876546" data-spend="10518554">
         <td>7</td>
         <td class="mono">120250076077340368</td>
         <td class="name-cell">Zone B_Summer Camp_Engagement_Mess_Direct_parrent_HCM_All_29-55_Manual_Video_Outcome_ADS_526_53</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">10.518.554 ₫</td>
-        <td class="num">16</td>
-        <td class="spend">657.410 ₫</td>
+        <td class="num">12</td>
+        <td class="spend">876.546 ₫</td>
       </tr>
-      <tr data-leads="17" data-cpl="584577" data-spend="9937806">
+      <tr data-leads="18" data-cpl="552100" data-spend="9937806">
         <td>8</td>
         <td class="mono">120248206743000368</td>
         <td class="name-cell">Zone A_Summer Camp_Engagement_Mess_Direct_parrent_HN_All_30-50_Manual_Video_Pain_ADS_526_04</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">9.937.806 ₫</td>
-        <td class="num">17</td>
-        <td class="spend">584.577 ₫</td>
+        <td class="num">18</td>
+        <td class="spend">552.100 ₫</td>
       </tr>
       <tr data-leads="8" data-cpl="1013831" data-spend="8110651">
         <td>9</td>
@@ -754,14 +858,14 @@
         <td class="num">12</td>
         <td class="spend">539.346 ₫</td>
       </tr>
-      <tr data-leads="3" data-cpl="2135356" data-spend="6406069">
+      <tr data-leads="4" data-cpl="1601517" data-spend="6406069">
         <td>11</td>
         <td class="mono">120252324939560368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_526-63</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">6.406.069 ₫</td>
-        <td class="num">3</td>
-        <td class="spend">2.135.356 ₫</td>
+        <td class="num">4</td>
+        <td class="spend">1.601.517 ₫</td>
       </tr>
       <tr data-leads="9" data-cpl="709766" data-spend="6387894">
         <td>12</td>
@@ -781,23 +885,23 @@
         <td class="num">13</td>
         <td class="spend">419.826 ₫</td>
       </tr>
-      <tr data-leads="8" data-cpl="671629" data-spend="5373030">
+      <tr data-leads="7" data-cpl="767576" data-spend="5373030">
         <td>14</td>
         <td class="mono">120248226895540368</td>
         <td class="name-cell">Zone A&B_ReMKT_Engagement_Mess_Direct_parrent_VN_All_28-51_Manual_Album_Outcome_Cuối tuần con sẽ… ❌ Chơi game, xem điện thoại</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">5.373.030 ₫</td>
-        <td class="num">8</td>
-        <td class="spend">671.629 ₫</td>
+        <td class="num">7</td>
+        <td class="spend">767.576 ₫</td>
       </tr>
-      <tr data-leads="6" data-cpl="863876" data-spend="5183259">
+      <tr data-leads="5" data-cpl="1036652" data-spend="5183259">
         <td>15</td>
         <td class="mono">120250076077320368</td>
         <td class="name-cell">Zone B_Summer Camp_Engagement_Mess_Direct_parrent_HCM_All_29-55_Manual_Video_Outcome_ADS_526_56</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">5.183.259 ₫</td>
-        <td class="num">6</td>
-        <td class="spend">863.876 ₫</td>
+        <td class="num">5</td>
+        <td class="spend">1.036.652 ₫</td>
       </tr>
       <tr data-leads="9" data-cpl="529196" data-spend="4762764">
         <td>16</td>
@@ -826,14 +930,14 @@
         <td class="num">6</td>
         <td class="spend">764.015 ₫</td>
       </tr>
-      <tr data-leads="7" data-cpl="623109" data-spend="4361760">
+      <tr data-leads="8" data-cpl="545220" data-spend="4361760">
         <td>19</td>
         <td class="mono">120252807127370368</td>
         <td class="name-cell">Zone B_Robotics_Engagement_Mess_LAL+Sở thích_HCM_All_30- 48_Manual_Video_miễn phí học thử</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">4.361.760 ₫</td>
-        <td class="num">7</td>
-        <td class="spend">623.109 ₫</td>
+        <td class="num">8</td>
+        <td class="spend">545.220 ₫</td>
       </tr>
       <tr data-leads="5" data-cpl="840109" data-spend="4200546">
         <td>20</td>
@@ -862,23 +966,23 @@
         <td class="num">3</td>
         <td class="spend">1.349.808 ₫</td>
       </tr>
-      <tr data-leads="10" data-cpl="393986" data-spend="3939855">
+      <tr data-leads="11" data-cpl="358169" data-spend="3939855">
         <td>23</td>
         <td class="mono">120252325211370368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_526-74</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">3.939.855 ₫</td>
-        <td class="num">10</td>
-        <td class="spend">393.986 ₫</td>
+        <td class="num">11</td>
+        <td class="spend">358.169 ₫</td>
       </tr>
-      <tr data-leads="4" data-cpl="954889" data-spend="3819557">
+      <tr data-leads="5" data-cpl="763911" data-spend="3819557">
         <td>24</td>
         <td class="mono">120252807127360368</td>
         <td class="name-cell">Zone B_Robotics_Engagement_Mess_LAL+Sở thích_HCM_All_30- 48_Manual_Video_Outcome_🔺 3 THÁNG TRƯỚC: KHÔNG DÁM NÓI 1 CÂU 🔹 HÔM NAY: CON ĐỨNG THUYẾT TRÌNH DỰ ÁN AI TRƯỚC LỚP</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">3.819.557 ₫</td>
-        <td class="num">4</td>
-        <td class="spend">954.889 ₫</td>
+        <td class="num">5</td>
+        <td class="spend">763.911 ₫</td>
       </tr>
       <tr data-leads="6" data-cpl="604933" data-spend="3629598">
         <td>25</td>
@@ -907,23 +1011,23 @@
         <td class="num">3</td>
         <td class="spend">1.142.451 ₫</td>
       </tr>
-      <tr data-leads="7" data-cpl="472275" data-spend="3305926">
+      <tr data-leads="8" data-cpl="413241" data-spend="3305926">
         <td>28</td>
         <td class="mono">120248221857960368</td>
         <td class="name-cell">Zone A&B_ReMKT_Engagement_Mess_Direct_parrent_VN_All_28-51_Manual_Album_Outcome_🎯 3 THÁNG TRƯỚC: KHÔNG DÁM NÓI 1 CÂU</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">3.305.926 ₫</td>
-        <td class="num">7</td>
-        <td class="spend">472.275 ₫</td>
+        <td class="num">8</td>
+        <td class="spend">413.241 ₫</td>
       </tr>
-      <tr data-leads="5" data-cpl="620512" data-spend="3102559">
+      <tr data-leads="6" data-cpl="517093" data-spend="3102559">
         <td>29</td>
         <td class="mono">120252433837400368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_626_22</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">3.102.559 ₫</td>
-        <td class="num">5</td>
-        <td class="spend">620.512 ₫</td>
+        <td class="num">6</td>
+        <td class="spend">517.093 ₫</td>
       </tr>
       <tr data-leads="2" data-cpl="1509394" data-spend="3018787">
         <td>30</td>
@@ -952,14 +1056,14 @@
         <td class="num">9</td>
         <td class="spend">306.719 ₫</td>
       </tr>
-      <tr data-leads="9" data-cpl="295488" data-spend="2659395">
+      <tr data-leads="8" data-cpl="332424" data-spend="2659395">
         <td>33</td>
         <td class="mono">120247988622200368</td>
         <td class="name-cell">Zone A - Parenting & Technology_HN_All_30-45_Manual_Album_🔥 Học công nghệ sớm = tạo lợi thế</td>
         <td><span class="badge paused">Dừng do Ad Set</span></td>
         <td class="spend">2.659.395 ₫</td>
-        <td class="num">9</td>
-        <td class="spend">295.488 ₫</td>
+        <td class="num">8</td>
+        <td class="spend">332.424 ₫</td>
       </tr>
       <tr data-leads="7" data-cpl="349514" data-spend="2446599">
         <td>34</td>
@@ -997,14 +1101,14 @@
         <td class="num">4</td>
         <td class="spend">417.962 ₫</td>
       </tr>
-      <tr data-leads="2" data-cpl="811476" data-spend="1622953">
+      <tr data-leads="4" data-cpl="405738" data-spend="1622953">
         <td>38</td>
         <td class="mono">120252807304250368</td>
         <td class="name-cell">Zone B_Robotics_Engagement_Mess_LAL+Sở thích_HCM_All_30- 48_Manual_Video_Outcome_🔺 3 THÁNG TRƯỚC: KHÔNG DÁM NÓI 1 CÂU 🔹 HÔM NAY: CON ĐỨNG THUYẾT TRÌNH DỰ ÁN AI TRƯỚC LỚP</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">1.622.953 ₫</td>
-        <td class="num">2</td>
-        <td class="spend">811.476 ₫</td>
+        <td class="num">4</td>
+        <td class="spend">405.738 ₫</td>
       </tr>
       <tr data-leads="-1" data-cpl="-1" data-spend="1510731">
         <td>39</td>
@@ -1069,14 +1173,14 @@
         <td class="num">4</td>
         <td class="spend">307.495 ₫</td>
       </tr>
-      <tr data-leads="3" data-cpl="398950" data-spend="1196851">
+      <tr data-leads="2" data-cpl="598426" data-spend="1196851">
         <td>46</td>
         <td class="mono">120252872879030368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_626_40</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">1.196.851 ₫</td>
-        <td class="num">3</td>
-        <td class="spend">398.950 ₫</td>
+        <td class="num">2</td>
+        <td class="spend">598.426 ₫</td>
       </tr>
       <tr data-leads="-1" data-cpl="-1" data-spend="1166518">
         <td>47</td>
@@ -1105,14 +1209,14 @@
         <td class="num">2</td>
         <td class="spend">567.534 ₫</td>
       </tr>
-      <tr data-leads="2" data-cpl="555917" data-spend="1111834">
+      <tr data-leads="1" data-cpl="1111834" data-spend="1111834">
         <td>50</td>
         <td class="mono">120252873746720368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_ADS_626_36</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">1.111.834 ₫</td>
-        <td class="num">2</td>
-        <td class="spend">555.917 ₫</td>
+        <td class="num">1</td>
+        <td class="spend">1.111.834 ₫</td>
       </tr>
       <tr data-leads="-1" data-cpl="-1" data-spend="1098949">
         <td>51</td>
@@ -1195,14 +1299,14 @@
         <td class="num">1</td>
         <td class="spend">931.027 ₫</td>
       </tr>
-      <tr data-leads="2" data-cpl="465235" data-spend="930470">
+      <tr data-leads="3" data-cpl="310157" data-spend="930470">
         <td>60</td>
         <td class="mono">120252805440200368</td>
         <td class="name-cell">Zone B_Robotics_Engagement_Mess_LAL+Sở thích_HCM_All_30- 48_Manual_Video_miễn phí học thử</td>
         <td><span class="badge active">Đang chạy</span></td>
         <td class="spend">930.470 ₫</td>
-        <td class="num">2</td>
-        <td class="spend">465.235 ₫</td>
+        <td class="num">3</td>
+        <td class="spend">310.157 ₫</td>
       </tr>
       <tr data-leads="-1" data-cpl="-1" data-spend="929930">
         <td>61</td>
@@ -1231,14 +1335,14 @@
         <td class="num">1</td>
         <td class="spend">925.454 ₫</td>
       </tr>
-      <tr data-leads="2" data-cpl="445850" data-spend="891701">
+      <tr data-leads="1" data-cpl="891701" data-spend="891701">
         <td>64</td>
         <td class="mono">120252870608200368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_ADS_626_34</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">891.701 ₫</td>
-        <td class="num">2</td>
-        <td class="spend">445.850 ₫</td>
+        <td class="num">1</td>
+        <td class="spend">891.701 ₫</td>
       </tr>
       <tr data-leads="1" data-cpl="871604" data-spend="871604">
         <td>65</td>
@@ -1285,14 +1389,14 @@
         <td class="num">1</td>
         <td class="spend">843.262 ₫</td>
       </tr>
-      <tr data-leads="3" data-cpl="275289" data-spend="825866">
+      <tr data-leads="2" data-cpl="412933" data-spend="825866">
         <td>70</td>
         <td class="mono">120252873774010368</td>
         <td class="name-cell">Zone B_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_626_37</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">825.866 ₫</td>
-        <td class="num">3</td>
-        <td class="spend">275.289 ₫</td>
+        <td class="num">2</td>
+        <td class="spend">412.933 ₫</td>
       </tr>
       <tr data-leads="1" data-cpl="813002" data-spend="813002">
         <td>71</td>
@@ -1429,14 +1533,14 @@
         <td class="num">—</td>
         <td class="spend">—</td>
       </tr>
-      <tr data-leads="3" data-cpl="198316" data-spend="594948">
+      <tr data-leads="2" data-cpl="297474" data-spend="594948">
         <td>86</td>
         <td class="mono">120252870188210368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_626_32</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">594.948 ₫</td>
-        <td class="num">3</td>
-        <td class="spend">198.316 ₫</td>
+        <td class="num">2</td>
+        <td class="spend">297.474 ₫</td>
       </tr>
       <tr data-leads="3" data-cpl="188009" data-spend="564026">
         <td>87</td>
@@ -1888,14 +1992,14 @@
         <td class="num">—</td>
         <td class="spend">—</td>
       </tr>
-      <tr data-leads="2" data-cpl="59266" data-spend="118533">
+      <tr data-leads="1" data-cpl="118533" data-spend="118533">
         <td>137</td>
         <td class="mono">120252873462380368</td>
         <td class="name-cell">Zone A_All_Engagement_Mess_Direct_Parent_HCM_All_29-51_Manual_Video_Outcome_ADS_ADS_626_42</td>
         <td><span class="badge paused">Dừng do Campaign</span></td>
         <td class="spend">118.533 ₫</td>
-        <td class="num">2</td>
-        <td class="spend">59.266 ₫</td>
+        <td class="num">1</td>
+        <td class="spend">118.533 ₫</td>
       </tr>
       <tr data-leads="-1" data-cpl="-1" data-spend="114395">
         <td>138</td>
@@ -2478,8 +2582,53 @@
       </div>
       <footer>Chỉ hiển thị ads có phát sinh chi phí trong khoảng 01–20/07/2026 (dữ liệu lấy từ 1000/1843 ads đầu tiên trong tài khoản do giới hạn truy vấn). Số lead lấy từ file người dùng cung cấp — những ads không có trong file lead hiển thị "—" và luôn được xếp cuối khi sắp xếp. Nhấn vào tiêu đề "Số lead" hoặc "Chi phí Lead" để sắp xếp tăng/giảm.</footer>
     </div>
+
+    <div id="update-panel" class="tab-panel">
+      <div class="upload-section">
+        <h3>1. File dữ liệu Campaign</h3>
+        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Campaign". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering" hiển thị là Tạm dừng. Dữ liệu này sẽ thay thế toàn bộ bảng ở tab "Theo Campaign".</p>
+        <input type="file" id="file-campaign" accept=".xlsx,.xls,.csv" onchange="onFileSelected('campaign', this)">
+        <div class="mapping-box" id="mapping-campaign">
+          <div class="map-row"><label>Campaign ID</label><select id="map-campaign-id"></select></div>
+          <div class="map-row"><label>Tên Campaign</label><select id="map-campaign-name"></select></div>
+          <div class="map-row"><label>Trạng thái / Delivery</label><select id="map-campaign-status"></select></div>
+          <div class="map-row"><label>Chi phí đã dùng</label><select id="map-campaign-spend"></select></div>
+        </div>
+        <button onclick="handleCampaignFile()">Cập nhật Campaign</button>
+        <div class="upload-status" id="status-campaign"></div>
+      </div>
+
+      <div class="upload-section">
+        <h3>2. File dữ liệu Ads ID</h3>
+        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Ads". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering" hiển thị là Tạm dừng.</p>
+        <input type="file" id="file-ads" accept=".xlsx,.xls,.csv" onchange="onFileSelected('ads', this)">
+        <div class="mapping-box" id="mapping-ads">
+          <div class="map-row"><label>Ads ID</label><select id="map-ads-id"></select></div>
+          <div class="map-row"><label>Tên Ads</label><select id="map-ads-name"></select></div>
+          <div class="map-row"><label>Trạng thái / Delivery</label><select id="map-ads-status"></select></div>
+          <div class="map-row"><label>Chi phí đã dùng</label><select id="map-ads-spend"></select></div>
+        </div>
+        <button onclick="handleAdsFile()">Cập nhật Ads</button>
+        <div class="upload-status" id="status-ads"></div>
+      </div>
+
+      <div class="upload-section">
+        <h3>3. File Lead theo Ads ID</h3>
+        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Lead". File này sẽ tự động kết nối với file Ads ID (mục 2) theo Ads ID để tính cột "Số lead" và "Chi phí Lead" ở tab "Theo Ads".</p>
+        <input type="file" id="file-lead" accept=".xlsx,.xls,.csv" onchange="onFileSelected('lead', this)">
+        <div class="mapping-box" id="mapping-lead">
+          <div class="map-row"><label>Ads ID</label><select id="map-lead-id"></select></div>
+          <div class="map-row"><label>Số lượng lead</label><select id="map-lead-leads"></select></div>
+        </div>
+        <button onclick="handleLeadFile()">Cập nhật Lead</button>
+        <div class="upload-status" id="status-lead"></div>
+      </div>
+
+      <footer>Chọn file, kiểm tra/chỉnh lại cột cho khớp, bấm nút cập nhật tương ứng, sau đó chuyển sang tab "Theo Campaign" hoặc "Theo Ads" để xem dữ liệu mới. Có thể cập nhật lại bất kỳ lúc nào bằng cách tải file mới.</footer>
+    </div>
   </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -2517,6 +2666,341 @@ function sortAdsTable(key) {
 
   document.getElementById('arrow-leads').textContent = key === 'leads' ? (dir === 1 ? '▲' : '▼') : '⇅';
   document.getElementById('arrow-cpl').textContent = key === 'cpl' ? (dir === 1 ? '▲' : '▼') : '⇅';
+}
+
+/* ===================== CẬP NHẬT DỮ LIỆU ===================== */
+
+function normKey(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/đ/g, 'd')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function findKey(row, candidates) {
+  var keys = Object.keys(row);
+  var normKeys = keys.map(normKey);
+  for (var i = 0; i < candidates.length; i++) {
+    var nc = normKey(candidates[i]);
+    var idx = normKeys.indexOf(nc);
+    if (idx !== -1) return keys[idx];
+  }
+  for (var i = 0; i < candidates.length; i++) {
+    var nc = normKey(candidates[i]);
+    for (var j = 0; j < normKeys.length; j++) {
+      if (normKeys[j].indexOf(nc) !== -1 || nc.indexOf(normKeys[j]) !== -1) return keys[j];
+    }
+  }
+  return null;
+}
+
+function parseNum(val) {
+  if (typeof val === 'number') return val;
+  var s = String(val == null ? '' : val).replace(/[^0-9\-]/g, '');
+  var n = parseInt(s, 10);
+  return isNaN(n) ? 0 : n;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function isActiveStatus(s) {
+  var t = normKey(s);
+  if (t.indexOf('notdelivering') !== -1) return false;
+  return t.indexOf('dangchay') !== -1 || t.indexOf('active') !== -1;
+}
+
+function statusLabel(s) {
+  var t = normKey(s);
+  if (t.indexOf('notdelivering') !== -1) return 'Tạm dừng';
+  if (t.indexOf('active') !== -1 || t.indexOf('dangchay') !== -1) return 'Đang chạy';
+  return s || 'Tạm dừng';
+}
+
+function formatVND(n) {
+  return Math.round(n).toLocaleString('vi-VN') + ' ₫';
+}
+
+function setStatus(id, msg, isError) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'upload-status ' + (isError ? 'error' : 'success');
+}
+
+function decodeFileText(buffer) {
+  var bytes = new Uint8Array(buffer);
+  var utf8 = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+  var badCount = (utf8.match(/\uFFFD/g) || []).length;
+  if (badCount > 3) {
+    try {
+      var alt = new TextDecoder('windows-1258', { fatal: false }).decode(bytes);
+      var altBad = (alt.match(/\uFFFD|\?/g) || []).length;
+      if (altBad < badCount) return alt;
+    } catch (e) { /* windows-1258 decoder may be unsupported, keep utf8 */ }
+  }
+  return utf8;
+}
+
+/* Parses one raw CSV line into an array of fields, per RFC4180 (handles quotes, "" escapes). */
+function parseCSVLine(line) {
+  var fields = [];
+  var i = 0, len = line.length, field = '', inQuotes = false;
+  while (i < len) {
+    var c = line[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (line[i + 1] === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    } else {
+      if (c === '"') { inQuotes = true; i++; continue; }
+      if (c === ',') { fields.push(field); field = ''; i++; continue; }
+      field += c; i++; continue;
+    }
+  }
+  fields.push(field);
+  return fields;
+}
+
+/* Some CSV exports (e.g. Facebook Ads Manager) double-wrap every line in an extra
+   layer of quoting, so a first parse can yield a single field containing the
+   real comma-separated content. Detect and unwrap that case. */
+function parseCSVLineRobust(line) {
+  var first = parseCSVLine(line);
+  if (first.length === 1 && /[",]/.test(first[0])) {
+    var second = parseCSVLine(first[0]);
+    if (second.length > 1) return second;
+  }
+  return first;
+}
+
+function parseCSVText(text) {
+  var lines = text.split(/\r\n|\r|\n/).filter(function(l) { return l.length > 0; });
+  if (!lines.length) return [];
+  var header = parseCSVLineRobust(lines[0]);
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    var fields = parseCSVLineRobust(lines[i]);
+    var obj = {};
+    for (var j = 0; j < header.length; j++) {
+      obj[header[j]] = fields[j] !== undefined ? fields[j] : '';
+    }
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function readDataFile(file, onOk, onErr) {
+  var isCsv = /\.csv$/i.test(file.name);
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      if (isCsv) {
+        var text = decodeFileText(e.target.result);
+        onOk(parseCSVText(text));
+      } else {
+        var data = new Uint8Array(e.target.result);
+        var wb = XLSX.read(data, { type: 'array' });
+        var sheet = wb.Sheets[wb.SheetNames[0]];
+        var json = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
+        onOk(json);
+      }
+    } catch (err) {
+      onErr(err);
+    }
+  };
+  reader.onerror = function(err) { onErr(err); };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ---- Cache dữ liệu đã đọc + mapping cột do người dùng chọn ---- */
+var pendingRows = { campaign: null, ads: null, lead: null };
+
+var mappingFields = {
+  campaign: [
+    { key: 'id', selectId: 'map-campaign-id', label: 'Campaign ID', required: true, guesses: ['Campaign ID', 'CampaignID', 'ID Campaign'] },
+    { key: 'name', selectId: 'map-campaign-name', label: 'Tên Campaign', required: true, guesses: ['Tên Campaign', 'Campaign Name'] },
+    { key: 'status', selectId: 'map-campaign-status', label: 'Trạng thái', required: false, guesses: ['Campaign delivery', 'Trạng thái', 'Status', 'Delivery'] },
+    { key: 'spend', selectId: 'map-campaign-spend', label: 'Chi phí đã dùng', required: true, guesses: ['Chi phí đã dùng', 'Chi ph', 'Chi phí', 'Spend', 'Amount Spent'] }
+  ],
+  ads: [
+    { key: 'id', selectId: 'map-ads-id', label: 'Ads ID', required: true, guesses: ['Ads ID', 'Ad ID', 'AdsID'] },
+    { key: 'name', selectId: 'map-ads-name', label: 'Tên Ads', required: true, guesses: ['Tên Ads', 'Ad Name', 'Ad name'] },
+    { key: 'status', selectId: 'map-ads-status', label: 'Trạng thái', required: false, guesses: ['Ads Delivery', 'Ad Delivery', 'Trạng thái', 'Status', 'Delivery'] },
+    { key: 'spend', selectId: 'map-ads-spend', label: 'Chi phí đã dùng', required: true, guesses: ['Chi phí đã dùng', 'Chi ph', 'Chi phí', 'Spend', 'Amount Spent'] }
+  ],
+  lead: [
+    { key: 'id', selectId: 'map-lead-id', label: 'Ads ID', required: true, guesses: ['Ads ID', 'Ad ID', 'AdsID'] },
+    { key: 'leads', selectId: 'map-lead-leads', label: 'Số lượng lead', required: true, guesses: ['Số lượng lead', 'Số lead', 'Leads', 'Lead'] }
+  ]
+};
+
+function onFileSelected(type, inputEl) {
+  var statusId = 'status-' + type;
+  if (!inputEl.files.length) return;
+  setStatus(statusId, 'Đang đọc file...', false);
+  readDataFile(inputEl.files[0], function(json) {
+    if (!json.length) {
+      pendingRows[type] = null;
+      document.getElementById('mapping-' + type).classList.remove('visible');
+      setStatus(statusId, 'File không có dữ liệu.', true);
+      return;
+    }
+    pendingRows[type] = json;
+    populateMapping(type, json[0]);
+    setStatus(statusId, 'Đã đọc ' + json.length + ' dòng. Kiểm tra cột bên dưới rồi bấm nút cập nhật.', false);
+  }, function(err) {
+    pendingRows[type] = null;
+    document.getElementById('mapping-' + type).classList.remove('visible');
+    setStatus(statusId, 'Lỗi đọc file: ' + err.message, true);
+  });
+}
+
+function populateMapping(type, sampleRow) {
+  var headers = Object.keys(sampleRow);
+  var fields = mappingFields[type];
+  fields.forEach(function(f) {
+    var sel = document.getElementById(f.selectId);
+    var guessKey = findKey(sampleRow, f.guesses);
+    var html = '';
+    if (!f.required) html += '<option value="">— Không dùng —</option>';
+    headers.forEach(function(h) {
+      html += '<option value="' + escapeHtml(h) + '"' + (h === guessKey ? ' selected' : '') + '>' + escapeHtml(h) + '</option>';
+    });
+    sel.innerHTML = html;
+    if (!guessKey && !f.required) sel.value = '';
+  });
+  document.getElementById('mapping-' + type).classList.add('visible');
+}
+
+/* ---- File 1: Campaign ---- */
+function handleCampaignFile() {
+  var json = pendingRows.campaign;
+  if (!json) { setStatus('status-campaign', 'Vui lòng chọn file trước.', true); return; }
+  var idKey = document.getElementById('map-campaign-id').value;
+  var nameKey = document.getElementById('map-campaign-name').value;
+  var statusKey = document.getElementById('map-campaign-status').value;
+  var spendKey = document.getElementById('map-campaign-spend').value;
+  if (!idKey || !spendKey) { setStatus('status-campaign', 'Vui lòng chọn đủ cột Campaign ID và Chi phí đã dùng.', true); return; }
+  var rows = json.map(function(r) {
+    return {
+      id: String(r[idKey] == null ? '' : r[idKey]).trim(),
+      name: nameKey ? String(r[nameKey] == null ? '' : r[nameKey]).trim() : '',
+      status: statusKey ? r[statusKey] : '',
+      spend: parseNum(r[spendKey])
+    };
+  }).filter(function(r) { return r.id !== '' && r.name !== ''; });
+  if (!rows.length) { setStatus('status-campaign', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
+  renderCampaignTable(rows);
+  setStatus('status-campaign', 'Đã cập nhật ' + rows.length + ' campaign vào tab "Theo Campaign".', false);
+}
+
+function renderCampaignTable(rows) {
+  rows.sort(function(a, b) { return b.spend - a.spend; });
+  var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
+  var html = '';
+  var total = 0, activeCount = 0;
+  rows.forEach(function(r, i) {
+    total += r.spend;
+    var active = isActiveStatus(r.status);
+    if (active) activeCount++;
+    html += '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td class="mono">' + escapeHtml(r.id) + '</td>' +
+      '<td class="name-cell">' + escapeHtml(r.name) + '</td>' +
+      '<td><span class="badge ' + (active ? 'active' : 'paused') + '">' + escapeHtml(statusLabel(r.status)) + '</span></td>' +
+      '<td class="spend">' + formatVND(r.spend) + '</td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = html;
+  var cards = document.querySelectorAll('#campaign-panel .summary .card .value');
+  cards[0].textContent = formatVND(total);
+  cards[1].textContent = rows.length;
+  cards[2].textContent = activeCount;
+}
+
+/* ---- File 2 + File 3: Ads + Lead ---- */
+var adsRows = null;
+var leadMap = null;
+
+function handleAdsFile() {
+  var json = pendingRows.ads;
+  if (!json) { setStatus('status-ads', 'Vui lòng chọn file trước.', true); return; }
+  var idKey = document.getElementById('map-ads-id').value;
+  var nameKey = document.getElementById('map-ads-name').value;
+  var statusKey = document.getElementById('map-ads-status').value;
+  var spendKey = document.getElementById('map-ads-spend').value;
+  if (!idKey || !spendKey) { setStatus('status-ads', 'Vui lòng chọn đủ cột Ads ID và Chi phí đã dùng.', true); return; }
+  adsRows = json.map(function(r) {
+    return {
+      id: String(r[idKey] == null ? '' : r[idKey]).trim(),
+      name: nameKey ? String(r[nameKey] == null ? '' : r[nameKey]).trim() : '',
+      status: statusKey ? r[statusKey] : '',
+      spend: parseNum(r[spendKey])
+    };
+  }).filter(function(r) { return r.id !== '' && r.name !== ''; });
+  if (!adsRows.length) { setStatus('status-ads', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
+  setStatus('status-ads', 'Đã tải ' + adsRows.length + ' ads.' + (leadMap ? ' Đã ghép với dữ liệu lead hiện có.' : ' Tải thêm file lead (mục 3) để tính Số lead / Chi phí Lead.'), false);
+  renderAdsTable();
+}
+
+function handleLeadFile() {
+  var json = pendingRows.lead;
+  if (!json) { setStatus('status-lead', 'Vui lòng chọn file trước.', true); return; }
+  var idKey = document.getElementById('map-lead-id').value;
+  var leadKey = document.getElementById('map-lead-leads').value;
+  if (!idKey || !leadKey) { setStatus('status-lead', 'Vui lòng chọn đủ cột Ads ID và Số lượng lead.', true); return; }
+  leadMap = {};
+  var count = 0;
+  json.forEach(function(r) {
+    var id = String(r[idKey] == null ? '' : r[idKey]).trim();
+    if (id !== '' && id !== 'undefined') { leadMap[id] = parseNum(r[leadKey]); count++; }
+  });
+  setStatus('status-lead', 'Đã tải lead cho ' + count + ' ads.' + (adsRows ? ' Đã ghép với file Ads ID.' : ' Tải thêm file Ads ID (mục 2) để ghép dữ liệu.'), false);
+  renderAdsTable();
+}
+
+function renderAdsTable() {
+  if (!adsRows) return;
+  var rows = adsRows.map(function(r) {
+    var leads = (leadMap && leadMap.hasOwnProperty(r.id)) ? leadMap[r.id] : -1;
+    var cpl = (leads > 0) ? Math.round(r.spend / leads) : -1;
+    return { id: r.id, name: r.name, status: r.status, spend: r.spend, leads: leads, cpl: cpl };
+  });
+  rows.sort(function(a, b) { return b.spend - a.spend; });
+  var tbody = document.getElementById('ads-tbody');
+  var html = '';
+  var total = 0, totalLeads = 0, activeCount = 0;
+  rows.forEach(function(r, i) {
+    total += r.spend;
+    if (r.leads > 0) totalLeads += r.leads;
+    var active = isActiveStatus(r.status);
+    if (active) activeCount++;
+    html += '<tr data-leads="' + r.leads + '" data-cpl="' + r.cpl + '" data-spend="' + r.spend + '">' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td class="mono">' + escapeHtml(r.id) + '</td>' +
+      '<td class="name-cell">' + escapeHtml(r.name) + '</td>' +
+      '<td><span class="badge ' + (active ? 'active' : 'paused') + '">' + escapeHtml(statusLabel(r.status)) + '</span></td>' +
+      '<td class="spend">' + formatVND(r.spend) + '</td>' +
+      '<td class="num">' + (r.leads >= 0 ? r.leads : '—') + '</td>' +
+      '<td class="spend">' + (r.cpl >= 0 ? formatVND(r.cpl) : '—') + '</td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = html;
+  var cards = document.querySelectorAll('#ads-panel .summary .card .value');
+  cards[0].textContent = formatVND(total);
+  cards[1].textContent = totalLeads;
+  cards[2].textContent = rows.length;
+  cards[3].textContent = activeCount;
+  sortState.leads = 0; sortState.cpl = 0;
+  document.getElementById('arrow-leads').textContent = '⇅';
+  document.getElementById('arrow-cpl').textContent = '⇅';
 }
 </script>
 </body>
