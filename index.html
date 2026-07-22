@@ -377,13 +377,13 @@ function escapeHtml(s) {
 
 function isActiveStatus(s) {
   var t = normKey(s);
-  if (t.indexOf('notdelivering') !== -1) return false;
+  if (t.indexOf('notdelivering') !== -1 || t.indexOf('inactive') !== -1 || t.indexOf('tamdung') !== -1) return false;
   return t.indexOf('dangchay') !== -1 || t.indexOf('active') !== -1;
 }
 
 function statusLabel(s) {
   var t = normKey(s);
-  if (t.indexOf('notdelivering') !== -1) return 'Tạm dừng';
+  if (t.indexOf('notdelivering') !== -1 || t.indexOf('inactive') !== -1 || t.indexOf('tamdung') !== -1) return 'Tạm dừng';
   if (t.indexOf('active') !== -1 || t.indexOf('dangchay') !== -1) return 'Đang chạy';
   return s || 'Tạm dừng';
 }
