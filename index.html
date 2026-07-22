@@ -50,6 +50,15 @@
   .tab-panel { display: none; padding-top: 20px; }
   .tab-panel.active { display: block; }
 
+  .filter-bar { display: flex; gap: 8px; margin: 0 0 16px 0; align-items: center; flex-wrap: wrap; }
+  .filter-bar .filter-label { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-right: 4px; }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 999px; border: 1px solid #cbd5e1; background: white;
+    color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
   .summary { display: flex; gap: 16px; margin: 0 0 20px 0; flex-wrap: wrap; }
   .summary .card {
     background: var(--card); border-radius: 10px; padding: 16px 20px;
@@ -150,15 +159,25 @@
           <div class="value">0</div>
         </div>
       </div>
+      <div class="filter-bar">
+        <span class="filter-label">Lọc trạng thái:</span>
+        <button class="filter-btn active" id="camp-filter-all" onclick="setCampaignFilter('all')">Tất cả</button>
+        <button class="filter-btn" id="camp-filter-active" onclick="setCampaignFilter('active')">Đang chạy</button>
+        <button class="filter-btn" id="camp-filter-paused" onclick="setCampaignFilter('paused')">Tạm dừng</button>
+      </div>
       <div class="table-wrap">
-        <table>
+        <table id="campaign-table">
           <thead>
             <tr>
               <th>#</th><th>Campaign ID</th><th>Tên Campaign</th><th>Trạng thái</th><th style="text-align:right">Chi phí đã dùng</th>
+              <th class="sortable" style="text-align:right" onclick="sortCampaignTable('leads')">Số lead<span class="arrow" id="arrow-camp-leads">⇅</span></th>
+              <th class="sortable" style="text-align:right" onclick="sortCampaignTable('messages')">Số tin nhắn<span class="arrow" id="arrow-camp-messages">⇅</span></th>
+              <th class="sortable" style="text-align:right" onclick="sortCampaignTable('cr')">CR<span class="arrow" id="arrow-camp-cr">⇅</span></th>
+              <th class="sortable" style="text-align:right" onclick="sortCampaignTable('cpl')">Giá lead<span class="arrow" id="arrow-camp-cpl">⇅</span></th>
             </tr>
           </thead>
           <tbody>
-      <tr><td colspan="5" style="text-align:center; color:var(--muted); padding:24px;">Chưa có dữ liệu. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</td></tr>
+      <tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Chưa có dữ liệu. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</td></tr>
           </tbody>
         </table>
       </div>
@@ -183,6 +202,12 @@
           <div class="label">Đang hoạt động</div>
           <div class="value">0</div>
         </div>
+      </div>
+      <div class="filter-bar">
+        <span class="filter-label">Lọc trạng thái:</span>
+        <button class="filter-btn active" id="ads-filter-all" onclick="setAdsFilter('all')">Tất cả</button>
+        <button class="filter-btn" id="ads-filter-active" onclick="setAdsFilter('active')">Đang chạy</button>
+        <button class="filter-btn" id="ads-filter-paused" onclick="setAdsFilter('paused')">Tạm dừng</button>
       </div>
       <div class="table-wrap">
         <table id="ads-table">
@@ -221,7 +246,7 @@
 
       <div class="upload-section">
         <h3>2. File dữ liệu Ads ID</h3>
-        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Ads". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering"/"inactive" hiển thị là Tạm dừng. Nếu file có cột số lượng tin nhắn (messaging conversations), chọn cột đó để hệ thống tự tính tỉ lệ chuyển đổi CR = Số lead / Số tin nhắn ở tab "Theo Ads".</p>
+        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Ads". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering"/"inactive" hiển thị là Tạm dừng. Nếu file có cột số lượng tin nhắn (messaging conversations), chọn cột đó để hệ thống tự tính tỉ lệ chuyển đổi CR = Số lead / Số tin nhắn ở tab "Theo Ads". Nếu file có cột Campaign ID, chọn cột đó để hệ thống tự cộng dồn Số lead / Số tin nhắn theo từng campaign và hiển thị ở tab "Theo Campaign".</p>
         <input type="file" id="file-ads" accept=".xlsx,.xls,.csv" onchange="onFileSelected('ads', this)">
         <div class="mapping-box" id="mapping-ads">
           <div class="map-row"><label>Ads ID</label><select id="map-ads-id"></select></div>
@@ -229,6 +254,7 @@
           <div class="map-row"><label>Trạng thái / Delivery</label><select id="map-ads-status"></select></div>
           <div class="map-row"><label>Chi phí đã dùng</label><select id="map-ads-spend"></select></div>
           <div class="map-row"><label>Số lượng tin nhắn</label><select id="map-ads-messages"></select></div>
+          <div class="map-row"><label>Campaign ID</label><select id="map-ads-campaignid"></select></div>
         </div>
         <button onclick="handleAdsFile()">Cập nhật Ads</button>
         <div class="upload-status" id="status-ads"></div>
@@ -307,6 +333,34 @@ function switchTab(tab) {
 }
 
 var sortState = { leads: 0, cpl: 0, messages: 0, cr: 0 }; // 0 = none, 1 = asc, -1 = desc
+var sortStateCampaign = { leads: 0, cpl: 0, messages: 0, cr: 0 };
+
+function sortCampaignTable(key) {
+  var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
+  var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+
+  var dir = sortStateCampaign[key] === -1 ? 1 : -1;
+  Object.keys(sortStateCampaign).forEach(function(k) { sortStateCampaign[k] = (k === key) ? dir : 0; });
+
+  rows.sort(function(a, b) {
+    var av = parseFloat(a.getAttribute('data-' + key));
+    var bv = parseFloat(b.getAttribute('data-' + key));
+    var aMissing = av < 0, bMissing = bv < 0;
+    if (aMissing && bMissing) return 0;
+    if (aMissing) return 1;
+    if (bMissing) return -1;
+    return dir === 1 ? (av - bv) : (bv - av);
+  });
+
+  rows.forEach(function(r, idx) {
+    r.querySelector('td').textContent = idx + 1;
+    tbody.appendChild(r);
+  });
+
+  ['leads', 'messages', 'cr', 'cpl'].forEach(function(k) {
+    document.getElementById('arrow-camp-' + k).textContent = (k === key) ? (dir === 1 ? '▲' : '▼') : '⇅';
+  });
+}
 
 function sortAdsTable(key) {
   var tbody = document.getElementById('ads-tbody');
@@ -507,7 +561,8 @@ var mappingFields = {
     { key: 'name', selectId: 'map-ads-name', label: 'Tên Ads', required: true, guesses: ['Tên Ads', 'Ad Name', 'Ad name'] },
     { key: 'status', selectId: 'map-ads-status', label: 'Trạng thái', required: false, guesses: ['Ads Delivery', 'Ad Delivery', 'Trạng thái', 'Status', 'Delivery'] },
     { key: 'spend', selectId: 'map-ads-spend', label: 'Chi phí đã dùng', required: true, guesses: ['Chi phí đã dùng', 'Chi ph', 'Chi phí', 'Spend', 'Amount Spent'] },
-    { key: 'messages', selectId: 'map-ads-messages', label: 'Số lượng tin nhắn', required: false, guesses: ['Số lượng tin nhắn', 'Tin nhắn', 'Messages', 'Messaging conversations started', 'Message'] }
+    { key: 'messages', selectId: 'map-ads-messages', label: 'Số lượng tin nhắn', required: false, guesses: ['Số lượng tin nhắn', 'Tin nhắn', 'Messages', 'Messaging conversations started', 'Message'] },
+    { key: 'campaignId', selectId: 'map-ads-campaignid', label: 'Campaign ID', required: false, guesses: ['Campaign ID', 'CampaignID', 'ID Campaign'] }
   ],
   lead: [
     { key: 'id', selectId: 'map-lead-id', label: 'Ads ID', required: true, guesses: ['Ads ID', 'Ad ID', 'AdsID'] },
@@ -576,29 +631,76 @@ function handleCampaignFile() {
   setStatus('status-campaign', 'Đã cập nhật ' + rows.length + ' campaign vào tab "Theo Campaign".', false);
 }
 
+/* Cộng dồn Số lead và Số tin nhắn của tất cả Ads thuộc cùng 1 Campaign ID */
+function buildCampaignAdsMetrics() {
+  var metrics = {};
+  if (!adsRows) return metrics;
+  adsRows.forEach(function(ad) {
+    if (!ad.campaignId) return;
+    if (!metrics[ad.campaignId]) metrics[ad.campaignId] = { leads: 0, hasLeads: false, messages: 0, hasMessages: false };
+    var m = metrics[ad.campaignId];
+    if (leadMap && leadMap.hasOwnProperty(ad.id)) { m.leads += leadMap[ad.id]; m.hasLeads = true; }
+    if (ad.messages != null && ad.messages >= 0) { m.messages += ad.messages; m.hasMessages = true; }
+  });
+  return metrics;
+}
+
+var campaignFilter = 'all'; // 'all' | 'active' | 'paused'
+
+function setCampaignFilter(filter) {
+  campaignFilter = filter;
+  ['all', 'active', 'paused'].forEach(function(f) {
+    document.getElementById('camp-filter-' + f).classList.toggle('active', f === filter);
+  });
+  if (campaignRows) renderCampaignTable(campaignRows);
+}
+
 function renderCampaignTable(rows) {
   campaignRows = rows;
   rows.sort(function(a, b) { return b.spend - a.spend; });
+  var campMetrics = buildCampaignAdsMetrics();
   var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
+  var displayRows = rows.filter(function(r) {
+    if (campaignFilter === 'all') return true;
+    var active = isActiveStatus(r.status);
+    return campaignFilter === 'active' ? active : !active;
+  });
   var html = '';
   var total = 0, activeCount = 0;
-  rows.forEach(function(r, i) {
+  if (!displayRows.length) {
+    html = '<tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Không có campaign nào khớp với bộ lọc hiện tại.</td></tr>';
+  }
+  displayRows.forEach(function(r, i) {
     total += r.spend;
     var active = isActiveStatus(r.status);
     if (active) activeCount++;
-    html += '<tr>' +
+    var m = campMetrics[r.id];
+    var leads = (m && m.hasLeads) ? m.leads : -1;
+    var messages = (m && m.hasMessages) ? m.messages : -1;
+    var cr = (leads >= 0 && messages > 0) ? (leads / messages * 100) : -1;
+    var cpl = (leads > 0) ? Math.round(r.spend / leads) : -1;
+    html += '<tr data-leads="' + leads + '" data-messages="' + messages + '" data-cr="' + cr + '" data-cpl="' + cpl + '">' +
       '<td>' + (i + 1) + '</td>' +
       '<td class="mono">' + escapeHtml(r.id) + '</td>' +
       '<td class="name-cell">' + escapeHtml(r.name) + '</td>' +
       '<td><span class="badge ' + (active ? 'active' : 'paused') + '">' + escapeHtml(statusLabel(r.status)) + '</span></td>' +
       '<td class="spend">' + formatVND(r.spend) + '</td>' +
+      '<td class="num">' + (leads >= 0 ? leads : '—') + '</td>' +
+      '<td class="num">' + (messages >= 0 ? messages : '—') + '</td>' +
+      '<td class="num">' + (cr >= 0 ? formatPercent(cr) : '—') + '</td>' +
+      '<td class="spend">' + (cpl >= 0 ? formatVND(cpl) : '—') + '</td>' +
       '</tr>';
   });
   tbody.innerHTML = html;
   var cards = document.querySelectorAll('#campaign-panel .summary .card .value');
   cards[0].textContent = formatVND(total);
-  cards[1].textContent = rows.length;
+  cards[1].textContent = displayRows.length;
   cards[2].textContent = activeCount;
+  sortStateCampaign.leads = 0; sortStateCampaign.messages = 0; sortStateCampaign.cr = 0; sortStateCampaign.cpl = 0;
+  ['leads', 'messages', 'cr', 'cpl'].forEach(function(k) {
+    var el = document.getElementById('arrow-camp-' + k);
+    if (el) el.textContent = '⇅';
+  });
 }
 
 /* ---- File 1: Campaign ---- */
@@ -616,6 +718,7 @@ function handleAdsFile() {
   var statusKey = document.getElementById('map-ads-status').value;
   var spendKey = document.getElementById('map-ads-spend').value;
   var messagesKey = document.getElementById('map-ads-messages').value;
+  var campaignIdKey = document.getElementById('map-ads-campaignid').value;
   if (!idKey || !spendKey) { setStatus('status-ads', 'Vui lòng chọn đủ cột Ads ID và Chi phí đã dùng.', true); return; }
   adsRows = json.map(function(r) {
     return {
@@ -623,12 +726,14 @@ function handleAdsFile() {
       name: nameKey ? String(r[nameKey] == null ? '' : r[nameKey]).trim() : '',
       status: statusKey ? r[statusKey] : '',
       spend: parseNum(r[spendKey]),
-      messages: messagesKey ? parseNum(r[messagesKey]) : -1
+      messages: messagesKey ? parseNum(r[messagesKey]) : -1,
+      campaignId: campaignIdKey ? String(r[campaignIdKey] == null ? '' : r[campaignIdKey]).trim() : ''
     };
   }).filter(function(r) { return r.id !== '' && r.name !== ''; });
   if (!adsRows.length) { setStatus('status-ads', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
   renderAdsTable();
   saveAdsData();
+  if (campaignRows) renderCampaignTable(campaignRows);
   setStatus('status-ads', 'Đã tải ' + adsRows.length + ' ads.' + (leadMap ? ' Đã ghép với dữ liệu lead hiện có.' : ' Tải thêm file lead (mục 3) để tính Số lead / Chi phí Lead.'), false);
 }
 
@@ -646,7 +751,18 @@ function handleLeadFile() {
   });
   renderAdsTable();
   saveLeadsData();
+  if (campaignRows) renderCampaignTable(campaignRows);
   setStatus('status-lead', 'Đã tải lead cho ' + count + ' ads.' + (adsRows ? ' Đã ghép với file Ads ID.' : ' Tải thêm file Ads ID (mục 2) để ghép dữ liệu.'), false);
+}
+
+var adsFilter = 'all'; // 'all' | 'active' | 'paused'
+
+function setAdsFilter(filter) {
+  adsFilter = filter;
+  ['all', 'active', 'paused'].forEach(function(f) {
+    document.getElementById('ads-filter-' + f).classList.toggle('active', f === filter);
+  });
+  renderAdsTable();
 }
 
 function renderAdsTable() {
@@ -659,10 +775,18 @@ function renderAdsTable() {
     return { id: r.id, name: r.name, status: r.status, spend: r.spend, leads: leads, cpl: cpl, messages: messages, cr: cr };
   });
   rows.sort(function(a, b) { return b.spend - a.spend; });
+  var displayRows = rows.filter(function(r) {
+    if (adsFilter === 'all') return true;
+    var active = isActiveStatus(r.status);
+    return adsFilter === 'active' ? active : !active;
+  });
   var tbody = document.getElementById('ads-tbody');
   var html = '';
   var total = 0, totalLeads = 0, activeCount = 0;
-  rows.forEach(function(r, i) {
+  if (!displayRows.length) {
+    html = '<tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Không có ads nào khớp với bộ lọc hiện tại.</td></tr>';
+  }
+  displayRows.forEach(function(r, i) {
     total += r.spend;
     if (r.leads > 0) totalLeads += r.leads;
     var active = isActiveStatus(r.status);
@@ -683,7 +807,7 @@ function renderAdsTable() {
   var cards = document.querySelectorAll('#ads-panel .summary .card .value');
   cards[0].textContent = formatVND(total);
   cards[1].textContent = totalLeads;
-  cards[2].textContent = rows.length;
+  cards[2].textContent = displayRows.length;
   cards[3].textContent = activeCount;
   sortState.leads = 0; sortState.cpl = 0; sortState.messages = 0; sortState.cr = 0;
   document.getElementById('arrow-leads').textContent = '⇅';
@@ -770,6 +894,7 @@ function loadDataFromFirebase() {
       if (data.rows && data.rows.length) {
         adsRows = data.rows;
         renderAdsTable();
+        if (campaignRows) renderCampaignTable(campaignRows);
         window.lastSyncedAt = data.timestamp;
         updateStorageInfo();
       }
@@ -787,6 +912,7 @@ function loadDataFromFirebase() {
       if (data.map) {
         leadMap = data.map;
         renderAdsTable();
+        if (campaignRows) renderCampaignTable(campaignRows);
         window.lastSyncedAt = data.timestamp;
         updateStorageInfo();
       }
