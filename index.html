@@ -192,10 +192,12 @@
               <th style="text-align:right">Chi phí đã dùng</th>
               <th class="sortable" style="text-align:right" onclick="sortAdsTable('leads')">Số lead<span class="arrow" id="arrow-leads">⇅</span></th>
               <th class="sortable" style="text-align:right" onclick="sortAdsTable('cpl')">Chi phí Lead<span class="arrow" id="arrow-cpl">⇅</span></th>
+              <th class="sortable" style="text-align:right" onclick="sortAdsTable('messages')">Số tin nhắn<span class="arrow" id="arrow-messages">⇅</span></th>
+              <th class="sortable" style="text-align:right" onclick="sortAdsTable('cr')">CR<span class="arrow" id="arrow-cr">⇅</span></th>
             </tr>
           </thead>
           <tbody id="ads-tbody">
-      <tr><td colspan="7" style="text-align:center; color:var(--muted); padding:24px;">Chưa có dữ liệu. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</td></tr>
+      <tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Chưa có dữ liệu. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</td></tr>
           </tbody>
         </table>
       </div>
@@ -219,13 +221,14 @@
 
       <div class="upload-section">
         <h3>2. File dữ liệu Ads ID</h3>
-        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Ads". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering" hiển thị là Tạm dừng.</p>
+        <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Ads". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering"/"inactive" hiển thị là Tạm dừng. Nếu file có cột số lượng tin nhắn (messaging conversations), chọn cột đó để hệ thống tự tính tỉ lệ chuyển đổi CR = Số lead / Số tin nhắn ở tab "Theo Ads".</p>
         <input type="file" id="file-ads" accept=".xlsx,.xls,.csv" onchange="onFileSelected('ads', this)">
         <div class="mapping-box" id="mapping-ads">
           <div class="map-row"><label>Ads ID</label><select id="map-ads-id"></select></div>
           <div class="map-row"><label>Tên Ads</label><select id="map-ads-name"></select></div>
           <div class="map-row"><label>Trạng thái / Delivery</label><select id="map-ads-status"></select></div>
           <div class="map-row"><label>Chi phí đã dùng</label><select id="map-ads-spend"></select></div>
+          <div class="map-row"><label>Số lượng tin nhắn</label><select id="map-ads-messages"></select></div>
         </div>
         <button onclick="handleAdsFile()">Cập nhật Ads</button>
         <div class="upload-status" id="status-ads"></div>
@@ -303,7 +306,7 @@ function switchTab(tab) {
   event.currentTarget.classList.add('active');
 }
 
-var sortState = { leads: 0, cpl: 0 }; // 0 = none, 1 = asc, -1 = desc
+var sortState = { leads: 0, cpl: 0, messages: 0, cr: 0 }; // 0 = none, 1 = asc, -1 = desc
 
 function sortAdsTable(key) {
   var tbody = document.getElementById('ads-tbody');
@@ -311,8 +314,7 @@ function sortAdsTable(key) {
 
   // toggle direction: default first click = descending (largest first)
   var dir = sortState[key] === -1 ? 1 : -1;
-  sortState[key] = dir;
-  sortState[key === 'leads' ? 'cpl' : 'leads'] = 0;
+  Object.keys(sortState).forEach(function(k) { sortState[k] = (k === key) ? dir : 0; });
 
   rows.sort(function(a, b) {
     var av = parseFloat(a.getAttribute('data-' + key));
@@ -330,8 +332,9 @@ function sortAdsTable(key) {
     tbody.appendChild(r);
   });
 
-  document.getElementById('arrow-leads').textContent = key === 'leads' ? (dir === 1 ? '▲' : '▼') : '⇅';
-  document.getElementById('arrow-cpl').textContent = key === 'cpl' ? (dir === 1 ? '▲' : '▼') : '⇅';
+  ['leads', 'cpl', 'messages', 'cr'].forEach(function(k) {
+    document.getElementById('arrow-' + k).textContent = (k === key) ? (dir === 1 ? '▲' : '▼') : '⇅';
+  });
 }
 
 /* ===================== CẬP NHẬT DỮ LIỆU ===================== */
@@ -390,6 +393,10 @@ function statusLabel(s) {
 
 function formatVND(n) {
   return Math.round(n).toLocaleString('vi-VN') + ' ₫';
+}
+
+function formatPercent(n) {
+  return n.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
 }
 
 function setStatus(id, msg, isError) {
@@ -499,7 +506,8 @@ var mappingFields = {
     { key: 'id', selectId: 'map-ads-id', label: 'Ads ID', required: true, guesses: ['Ads ID', 'Ad ID', 'AdsID'] },
     { key: 'name', selectId: 'map-ads-name', label: 'Tên Ads', required: true, guesses: ['Tên Ads', 'Ad Name', 'Ad name'] },
     { key: 'status', selectId: 'map-ads-status', label: 'Trạng thái', required: false, guesses: ['Ads Delivery', 'Ad Delivery', 'Trạng thái', 'Status', 'Delivery'] },
-    { key: 'spend', selectId: 'map-ads-spend', label: 'Chi phí đã dùng', required: true, guesses: ['Chi phí đã dùng', 'Chi ph', 'Chi phí', 'Spend', 'Amount Spent'] }
+    { key: 'spend', selectId: 'map-ads-spend', label: 'Chi phí đã dùng', required: true, guesses: ['Chi phí đã dùng', 'Chi ph', 'Chi phí', 'Spend', 'Amount Spent'] },
+    { key: 'messages', selectId: 'map-ads-messages', label: 'Số lượng tin nhắn', required: false, guesses: ['Số lượng tin nhắn', 'Tin nhắn', 'Messages', 'Messaging conversations started', 'Message'] }
   ],
   lead: [
     { key: 'id', selectId: 'map-lead-id', label: 'Ads ID', required: true, guesses: ['Ads ID', 'Ad ID', 'AdsID'] },
@@ -607,13 +615,15 @@ function handleAdsFile() {
   var nameKey = document.getElementById('map-ads-name').value;
   var statusKey = document.getElementById('map-ads-status').value;
   var spendKey = document.getElementById('map-ads-spend').value;
+  var messagesKey = document.getElementById('map-ads-messages').value;
   if (!idKey || !spendKey) { setStatus('status-ads', 'Vui lòng chọn đủ cột Ads ID và Chi phí đã dùng.', true); return; }
   adsRows = json.map(function(r) {
     return {
       id: String(r[idKey] == null ? '' : r[idKey]).trim(),
       name: nameKey ? String(r[nameKey] == null ? '' : r[nameKey]).trim() : '',
       status: statusKey ? r[statusKey] : '',
-      spend: parseNum(r[spendKey])
+      spend: parseNum(r[spendKey]),
+      messages: messagesKey ? parseNum(r[messagesKey]) : -1
     };
   }).filter(function(r) { return r.id !== '' && r.name !== ''; });
   if (!adsRows.length) { setStatus('status-ads', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
@@ -644,7 +654,9 @@ function renderAdsTable() {
   var rows = adsRows.map(function(r) {
     var leads = (leadMap && leadMap.hasOwnProperty(r.id)) ? leadMap[r.id] : -1;
     var cpl = (leads > 0) ? Math.round(r.spend / leads) : -1;
-    return { id: r.id, name: r.name, status: r.status, spend: r.spend, leads: leads, cpl: cpl };
+    var messages = (r.messages != null && r.messages >= 0) ? r.messages : -1;
+    var cr = (leads >= 0 && messages > 0) ? (leads / messages * 100) : -1;
+    return { id: r.id, name: r.name, status: r.status, spend: r.spend, leads: leads, cpl: cpl, messages: messages, cr: cr };
   });
   rows.sort(function(a, b) { return b.spend - a.spend; });
   var tbody = document.getElementById('ads-tbody');
@@ -655,7 +667,7 @@ function renderAdsTable() {
     if (r.leads > 0) totalLeads += r.leads;
     var active = isActiveStatus(r.status);
     if (active) activeCount++;
-    html += '<tr data-leads="' + r.leads + '" data-cpl="' + r.cpl + '" data-spend="' + r.spend + '">' +
+    html += '<tr data-leads="' + r.leads + '" data-cpl="' + r.cpl + '" data-spend="' + r.spend + '" data-messages="' + r.messages + '" data-cr="' + r.cr + '">' +
       '<td>' + (i + 1) + '</td>' +
       '<td class="mono">' + escapeHtml(r.id) + '</td>' +
       '<td class="name-cell">' + escapeHtml(r.name) + '</td>' +
@@ -663,6 +675,8 @@ function renderAdsTable() {
       '<td class="spend">' + formatVND(r.spend) + '</td>' +
       '<td class="num">' + (r.leads >= 0 ? r.leads : '—') + '</td>' +
       '<td class="spend">' + (r.cpl >= 0 ? formatVND(r.cpl) : '—') + '</td>' +
+      '<td class="num">' + (r.messages >= 0 ? r.messages : '—') + '</td>' +
+      '<td class="num">' + (r.cr >= 0 ? formatPercent(r.cr) : '—') + '</td>' +
       '</tr>';
   });
   tbody.innerHTML = html;
@@ -671,9 +685,11 @@ function renderAdsTable() {
   cards[1].textContent = totalLeads;
   cards[2].textContent = rows.length;
   cards[3].textContent = activeCount;
-  sortState.leads = 0; sortState.cpl = 0;
+  sortState.leads = 0; sortState.cpl = 0; sortState.messages = 0; sortState.cr = 0;
   document.getElementById('arrow-leads').textContent = '⇅';
   document.getElementById('arrow-cpl').textContent = '⇅';
+  document.getElementById('arrow-messages').textContent = '⇅';
+  document.getElementById('arrow-cr').textContent = '⇅';
 }
 
 /* ========== FIREBASE + LOCALSTORAGE ========== */
