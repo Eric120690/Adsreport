@@ -262,7 +262,6 @@
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
   // Firebase config
@@ -275,53 +274,26 @@
     appId: "1:1033543466889:web:48da157157850c5014eb58"
   };
 
-  // Initialize Firebase
+  // Initialize Firebase (không dùng Authentication - dữ liệu công khai, dùng chung)
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
   const db = getFirestore(app);
 
   // Global variables for Firebase
   window.firebaseApp = app;
-  window.firebaseAuth = auth;
   window.firebaseDb = db;
-  window.currentUserId = null;
-  window.firebaseReady = false;
-  
+  window.firebaseReady = true;
+
   // Export Firestore functions to global scope
   window.firebaseDoc = doc;
   window.firebaseSetDoc = setDoc;
   window.firebaseGetDoc = getDoc;
   window.firebaseOnSnapshot = onSnapshot;
 
-  // Initialize Firebase and authenticate
-  signInAnonymously(auth)
-    .then((result) => {
-      window.currentUserId = result.user.uid;
-      window.firebaseReady = true;
-      console.log("✓ Firebase connected:", window.currentUserId);
-      // Delay để chắc chắn các hàm đã được định nghĩa
-      setTimeout(() => {
-        if (window.updateStorageInfo) updateStorageInfo();
-        if (window.loadDataFromFirebase) loadDataFromFirebase();
-      }, 100);
-    })
-    .catch((error) => {
-      console.error("Firebase Auth Error:", error);
-      window.firebaseError = 'Đăng nhập Firebase lỗi: ' + (error.code || error.message || error);
-      setTimeout(() => {
-        if (window.updateStorageInfo) updateStorageInfo();
-      }, 100);
-    });
-
-  // Listen for auth state changes
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      window.currentUserId = user.uid;
-      window.firebaseReady = true;
-    } else {
-      window.firebaseReady = false;
-    }
-  });
+  // Sẵn sàng dùng ngay, không cần đăng nhập
+  setTimeout(() => {
+    if (window.updateStorageInfo) updateStorageInfo();
+    if (window.loadDataFromFirebase) loadDataFromFirebase();
+  }, 100);
 </script>
 
 <script>
