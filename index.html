@@ -67,6 +67,24 @@
     display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 11.5px;
     font-weight: 700; background: #dbeafe; color: var(--accent); margin-left: 8px;
   }
+  .spinner {
+    display: inline-block; width: 13px; height: 13px; border: 2px solid #cbd5e1;
+    border-top-color: var(--accent); border-radius: 50%; vertical-align: -2px;
+    margin-right: 7px; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .refresh-btn { display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
+  .refresh-btn:disabled { opacity: 0.6; cursor: default; }
+  .refresh-btn .btn-spinner {
+    display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.5);
+    border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  .status-loading { color: var(--accent) !important; }
+  .skeleton-row td {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%; animation: shimmer 1.3s ease-in-out infinite; color: transparent;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
   .summary { display: flex; gap: 16px; margin: 0 0 20px 0; flex-wrap: wrap; }
   .summary .card {
@@ -146,6 +164,17 @@
       <h1>Báo cáo chi phí quảng cáo Facebook</h1>
       <div class="subtitle">Chưa có dữ liệu. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</div>
     </header>
+
+    <div class="top-refresh-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; background:var(--card); border-radius:10px; padding:10px 16px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <div style="display:flex; align-items:center;">
+        <span class="spinner" id="top-spinner" style="display:none;"></span>
+        <span id="top-cache-info" style="color:var(--muted); font-size:12.5px;">Đang kiểm tra dữ liệu...</span>
+      </div>
+      <button id="refresh-btn" class="refresh-btn" onclick="manualCheckForUpdates()" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; white-space:nowrap;">
+        <span class="btn-spinner" id="refresh-btn-spinner" style="display:none;"></span>
+        <span id="refresh-btn-text">🔄 Tải dữ liệu mới</span>
+      </button>
+    </div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('campaign')">Theo Campaign</button>
@@ -313,7 +342,10 @@
           <div>
             <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">💾 Trạng thái lưu dữ liệu</div>
             <div id="storage-info" style="color: var(--muted); font-size: 12.5px;">Chưa có dữ liệu được lưu</div>
-            <div id="local-cache-info" style="color: var(--muted); font-size: 12.5px; margin-top: 2px;"></div>
+            <div style="display:flex; align-items:center; margin-top: 2px;">
+              <span class="spinner" id="local-spinner" style="display:none;"></span>
+              <span id="local-cache-info" style="color: var(--muted); font-size: 12.5px;"></span>
+            </div>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button onclick="manualCheckForUpdates()" style="background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500;">🔄 Tải dữ liệu mới</button>
@@ -1038,10 +1070,41 @@ function loadAllFromLocalCache() {
 }
 
 function setDataStatus(msg, isError) {
-  var el = document.getElementById('local-cache-info');
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = isError ? '#dc2626' : 'var(--muted)';
+  var color = isError ? '#dc2626' : 'var(--muted)';
+  ['local-cache-info', 'top-cache-info'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = color;
+  });
+}
+
+/* Bật/tắt hiệu ứng đang tải: hiện vòng xoay (spinner) cạnh thông báo + trên nút,
+   đồng thời khoá tạm nút "Tải dữ liệu mới" để tránh bấm nhiều lần trong lúc đang tải. */
+function setLoadingState(isLoading) {
+  ['top-spinner', 'local-spinner'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isLoading ? 'inline-block' : 'none';
+  });
+  var btn = document.getElementById('refresh-btn');
+  var btnSpinner = document.getElementById('refresh-btn-spinner');
+  var btnText = document.getElementById('refresh-btn-text');
+  if (btn) btn.disabled = isLoading;
+  if (btnSpinner) btnSpinner.style.display = isLoading ? 'inline-block' : 'none';
+  if (btnText) btnText.textContent = isLoading ? 'Đang tải...' : '🔄 Tải dữ liệu mới';
+}
+
+/* Hiệu ứng khung xương (shimmer) thay cho bảng trống trong lúc đang tải dữ liệu lần đầu,
+   để người dùng thấy trang đang hoạt động thay vì màn hình trống gây sốt ruột. */
+function showSkeletonRows() {
+  var rowHtml = '';
+  for (var i = 0; i < 6; i++) {
+    rowHtml += '<tr class="skeleton-row"><td colspan="9">Đang tải dữ liệu…</td></tr>';
+  }
+  var campTbody = document.querySelector('#campaign-panel .table-wrap tbody');
+  var adsTbody = document.getElementById('ads-tbody');
+  if (campTbody) campTbody.innerHTML = rowHtml;
+  if (adsTbody) adsTbody.innerHTML = rowHtml;
 }
 
 /* Lưu 1 phần dữ liệu (campaigns/ads/leads) của 1 kỳ (tháng hoặc 1 ngày cụ thể) lên Firebase,
@@ -1147,7 +1210,9 @@ function checkForUpdates(isManual, forceInitial) {
     setDataStatus('⚠️ Chưa kết nối được Firebase, đang hiển thị dữ liệu đã lưu trên trình duyệt.', true);
     return Promise.resolve();
   }
+  setLoadingState(true);
   setDataStatus(forceInitial ? 'Lần đầu truy cập — đang tải toàn bộ dữ liệu từ Firebase...' : 'Đang kiểm tra dữ liệu mới trên Firebase...', false);
+  if (forceInitial) showSkeletonRows();
   var indexRef = window.firebaseDoc(window.firebaseDb, 'shared', 'version_index');
   var indexPromise = window.firebaseGetDoc(indexRef);
   var daysPromise = forceInitial ? discoverAllDaysFromFirebase() : Promise.resolve(null);
@@ -1187,17 +1252,35 @@ function checkForUpdates(isManual, forceInitial) {
           var ds = getDataset(viewPeriod);
           renderCampaignTable(ds);
           renderAdsTable(ds);
+        } else if (forceInitial) {
+          // Đã tải xong nhưng kỳ đang xem (mặc định "Dữ liệu tháng") không nằm trong danh sách
+          // vừa cập nhật (ví dụ tháng chưa có dữ liệu) — vẫn cần vẽ lại để xoá khung xương skeleton.
+          var dsView = getDataset(viewPeriod);
+          renderCampaignTable(dsView);
+          renderAdsTable(dsView);
         }
         window.lastSyncedAt = new Date().toLocaleString('vi-VN');
         setDataStatus('✅ Đã tải dữ liệu cho: ' + updatedPeriods.map(periodLabel).join(', ') + '.', false);
       } else {
+        if (forceInitial) {
+          var dsEmpty = getDataset(viewPeriod);
+          renderCampaignTable(dsEmpty);
+          renderAdsTable(dsEmpty);
+        }
         setDataStatus(isManual ? '✅ Dữ liệu trên trình duyệt đã là mới nhất — không có gì để tải thêm.' : '✅ Dữ liệu đã ở phiên bản mới nhất.', false);
       }
       updateStorageInfo();
+      setLoadingState(false);
     });
   }).catch(function(err) {
     console.error('Lỗi kiểm tra phiên bản dữ liệu:', err);
     setDataStatus('❌ Lỗi khi kiểm tra dữ liệu mới: ' + (err.code || err.message || err), true);
+    setLoadingState(false);
+    if (forceInitial) {
+      // Xoá skeleton nếu lỗi giữa chừng, tránh treo hiệu ứng loading mãi mãi
+      renderCampaignTable(getDataset(viewPeriod));
+      renderAdsTable(getDataset(viewPeriod));
+    }
   });
 }
 
