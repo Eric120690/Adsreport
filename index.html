@@ -58,6 +58,15 @@
   }
   .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
   .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .period-select {
+    padding: 6px 12px; border-radius: 999px; border: 1px solid #cbd5e1; background: white;
+    color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .period-select:hover { border-color: var(--accent); }
+  .period-tag {
+    display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 11.5px;
+    font-weight: 700; background: #dbeafe; color: var(--accent); margin-left: 8px;
+  }
 
   .summary { display: flex; gap: 16px; margin: 0 0 20px 0; flex-wrap: wrap; }
   .summary .card {
@@ -145,6 +154,13 @@
     </div>
 
     <div id="campaign-panel" class="tab-panel active">
+      <div class="filter-bar">
+        <span class="filter-label">Xem dữ liệu:</span>
+        <select class="period-select" id="period-select-campaign" onchange="switchViewPeriod(this.value)">
+          <option value="month">Dữ liệu tháng</option>
+        </select>
+        <span class="period-tag" id="period-tag-campaign"></span>
+      </div>
       <div class="summary">
         <div class="card">
           <div class="label">Tổng chi phí đã sử dụng</div>
@@ -181,10 +197,17 @@
           </tbody>
         </table>
       </div>
-      <footer>Chỉ hiển thị campaign có phát sinh chi phí trong khoảng 01–21/07/2026.</footer>
+      <footer id="footer-campaign">Chỉ hiển thị campaign có phát sinh chi phí. Đang xem: Dữ liệu tháng.</footer>
     </div>
 
     <div id="ads-panel" class="tab-panel">
+      <div class="filter-bar">
+        <span class="filter-label">Xem dữ liệu:</span>
+        <select class="period-select" id="period-select-ads" onchange="switchViewPeriod(this.value)">
+          <option value="month">Dữ liệu tháng</option>
+        </select>
+        <span class="period-tag" id="period-tag-ads"></span>
+      </div>
       <div class="summary">
         <div class="card">
           <div class="label">Tổng chi phí đã sử dụng (Ads)</div>
@@ -226,10 +249,21 @@
           </tbody>
         </table>
       </div>
-      <footer>Chỉ hiển thị ads có phát sinh chi phí trong khoảng 01–20/07/2026 (dữ liệu lấy từ 1000/1843 ads đầu tiên trong tài khoản do giới hạn truy vấn). Số lead lấy từ file người dùng cung cấp — những ads không có trong file lead hiển thị "—" và luôn được xếp cuối khi sắp xếp. Nhấn vào tiêu đề "Số lead" hoặc "Chi phí Lead" để sắp xếp tăng/giảm.</footer>
+      <footer id="footer-ads">Chỉ hiển thị ads có phát sinh chi phí. Số lead lấy từ file người dùng cung cấp — những ads không có trong file lead hiển thị "—" và luôn được xếp cuối khi sắp xếp. Nhấn vào tiêu đề "Số lead" hoặc "Chi phí Lead" để sắp xếp tăng/giảm. Đang xem: Dữ liệu tháng.</footer>
     </div>
 
     <div id="update-panel" class="tab-panel">
+      <div class="upload-section">
+        <h3>0. Chọn loại dữ liệu đang tải lên</h3>
+        <p class="hint">Chọn "Dữ liệu cả tháng" nếu 3 file bên dưới là báo cáo tổng hợp cho cả tháng (sẽ hiển thị ở lựa chọn "Dữ liệu tháng"). Chọn "Dữ liệu 1 ngày cụ thể" và chọn ngày nếu 3 file bên dưới chỉ là báo cáo của riêng 1 ngày (sẽ hiển thị như một mục riêng theo ngày đó). Lựa chọn này áp dụng chung cho cả 3 file Campaign / Ads / Lead bên dưới — nhớ kiểm tra lại trước khi bấm các nút cập nhật.</p>
+        <div class="filter-bar">
+          <button class="filter-btn active" id="upload-target-month" onclick="setUploadTarget('month')">Dữ liệu cả tháng</button>
+          <button class="filter-btn" id="upload-target-day" onclick="setUploadTarget('day')">Dữ liệu 1 ngày cụ thể</button>
+          <input type="date" id="upload-day-picker" style="display:none; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:13px;" onchange="onUploadDayPicked(this.value)">
+        </div>
+        <div class="upload-status success" id="status-upload-target">Đang tải lên cho: Dữ liệu cả tháng.</div>
+      </div>
+
       <div class="upload-section">
         <h3>1. File dữ liệu Campaign</h3>
         <p class="hint">Chấp nhận file Excel (.xlsx/.xls) hoặc CSV. Sau khi chọn file, chọn cột tương ứng bên dưới rồi bấm "Cập nhật Campaign". Giá trị trạng thái "active" hiển thị là Đang chạy, "not_delivering" hiển thị là Tạm dừng. Dữ liệu này sẽ thay thế toàn bộ bảng ở tab "Theo Campaign".</p>
@@ -279,9 +313,14 @@
           <div>
             <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">💾 Trạng thái lưu dữ liệu</div>
             <div id="storage-info" style="color: var(--muted); font-size: 12.5px;">Chưa có dữ liệu được lưu</div>
+            <div id="local-cache-info" style="color: var(--muted); font-size: 12.5px; margin-top: 2px;"></div>
           </div>
-          <button onclick="clearAllStoredData()" style="background: #dc2626; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.2s;">🗑️ Xóa tất cả dữ liệu lưu</button>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button onclick="manualCheckForUpdates()" style="background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500;">🔄 Tải dữ liệu mới</button>
+            <button onclick="clearAllStoredData()" style="background: #dc2626; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.2s;">🗑️ Xóa tất cả dữ liệu lưu</button>
+          </div>
         </div>
+        <div style="margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.5;">Trang này lưu 1 bản dữ liệu ngay trên trình duyệt (không tốn lượt đọc Firebase). Mở trang lên sẽ tự kiểm tra xem Firebase có dữ liệu mới hơn không (chỉ 1 lượt đọc); nếu có mới tải về, nếu không thì giữ nguyên dữ liệu cũ đã lưu. Bấm "🔄 Tải dữ liệu mới" để kiểm tra lại theo yêu cầu, ví dụ khi biết đồng nghiệp vừa upload dữ liệu ở máy khác.</div>
       </div>
     </div>
   </div>
@@ -291,7 +330,7 @@
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
   // Firebase config
   const firebaseConfig = {
@@ -316,7 +355,6 @@
   window.firebaseDoc = doc;
   window.firebaseSetDoc = setDoc;
   window.firebaseGetDoc = getDoc;
-  window.firebaseOnSnapshot = onSnapshot;
 
   // Sẵn sàng dùng ngay, không cần đăng nhập
   setTimeout(() => {
@@ -334,6 +372,88 @@ function switchTab(tab) {
 
 var sortState = { leads: 0, cpl: 0, messages: 0, cr: 0 }; // 0 = none, 1 = asc, -1 = desc
 var sortStateCampaign = { leads: 0, cpl: 0, messages: 0, cr: 0 };
+
+/* ===================== MÔ HÌNH DỮ LIỆU THEO KỲ (THÁNG / NGÀY) ===================== */
+// monthData: bộ dữ liệu tổng của cả tháng (mặc định, giống hành vi cũ)
+// dailyData: mỗi ngày cụ thể là 1 bộ dữ liệu riêng, độc lập với tháng
+//   dailyData['2026-07-15'] = { campaignRows, adsRows, leadMap, timestamp }
+var monthData = { campaignRows: null, adsRows: null, leadMap: null, timestamp: null, version: 0 };
+var dailyData = {};
+var viewPeriod = 'month';   // Kỳ đang được xem trên tab "Theo Campaign" / "Theo Ads"
+var uploadTarget = 'month'; // Kỳ mà 3 file sắp/đang được tải lên sẽ được lưu vào
+
+function getDataset(period) {
+  if (period === 'month') return monthData;
+  if (!dailyData[period]) dailyData[period] = { campaignRows: null, adsRows: null, leadMap: null, timestamp: null, version: 0 };
+  return dailyData[period];
+}
+
+function formatDateVN(iso) {
+  var parts = String(iso || '').split('-');
+  if (parts.length !== 3) return iso;
+  return parts[2] + '/' + parts[1] + '/' + parts[0];
+}
+
+function periodLabel(period) {
+  return period === 'month' ? 'Dữ liệu tháng' : 'Ngày ' + formatDateVN(period);
+}
+
+/* Đồng bộ 2 dropdown chọn kỳ xem (tab Campaign + tab Ads) và điền danh sách các ngày đã có dữ liệu */
+function populatePeriodSelectors() {
+  var dates = Object.keys(dailyData).sort().reverse();
+  ['campaign', 'ads'].forEach(function(tab) {
+    var sel = document.getElementById('period-select-' + tab);
+    if (!sel) return;
+    var html = '<option value="month">Dữ liệu tháng</option>';
+    dates.forEach(function(d) {
+      html += '<option value="' + d + '">Ngày ' + formatDateVN(d) + '</option>';
+    });
+    sel.innerHTML = html;
+    sel.value = viewPeriod;
+    var tag = document.getElementById('period-tag-' + tab);
+    if (tag) tag.textContent = viewPeriod === 'month' ? '' : '📅 dữ liệu riêng của ngày này';
+  });
+}
+
+/* Chuyển kỳ đang xem ở 2 tab Theo Campaign / Theo Ads */
+function switchViewPeriod(period) {
+  viewPeriod = period;
+  populatePeriodSelectors();
+  var ds = getDataset(period);
+  renderCampaignTable(ds);
+  renderAdsTable(ds);
+  var footerCamp = document.getElementById('footer-campaign');
+  if (footerCamp) footerCamp.textContent = 'Chỉ hiển thị campaign có phát sinh chi phí. Đang xem: ' + periodLabel(period) + '.';
+  var footerAds = document.getElementById('footer-ads');
+  if (footerAds) footerAds.textContent = 'Chỉ hiển thị ads có phát sinh chi phí. Số lead lấy từ file người dùng cung cấp — những ads không có trong file lead hiển thị "—" và luôn được xếp cuối khi sắp xếp. Nhấn vào tiêu đề "Số lead" hoặc "Chi phí Lead" để sắp xếp tăng/giảm. Đang xem: ' + periodLabel(period) + '.';
+}
+
+/* Chọn kỳ mà 3 file ở tab "Cập nhật dữ liệu" sẽ được lưu vào */
+function setUploadTarget(kind) {
+  document.getElementById('upload-target-month').classList.toggle('active', kind === 'month');
+  document.getElementById('upload-target-day').classList.toggle('active', kind === 'day');
+  var picker = document.getElementById('upload-day-picker');
+  if (kind === 'month') {
+    picker.style.display = 'none';
+    uploadTarget = 'month';
+    setStatus('status-upload-target', 'Đang tải lên cho: Dữ liệu cả tháng.', false);
+  } else {
+    picker.style.display = 'inline-block';
+    if (picker.value) {
+      uploadTarget = picker.value;
+      setStatus('status-upload-target', 'Đang tải lên cho: ' + periodLabel(picker.value) + '.', false);
+    } else {
+      uploadTarget = null;
+      setStatus('status-upload-target', 'Vui lòng chọn ngày cụ thể ở trên trước khi tải file.', true);
+    }
+  }
+}
+
+function onUploadDayPicked(val) {
+  if (!val) { uploadTarget = null; setStatus('status-upload-target', 'Vui lòng chọn ngày cụ thể ở trên trước khi tải file.', true); return; }
+  uploadTarget = val;
+  setStatus('status-upload-target', 'Đang tải lên cho: ' + periodLabel(val) + '.', false);
+}
 
 function sortCampaignTable(key) {
   var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
@@ -610,6 +730,7 @@ function populateMapping(type, sampleRow) {
 
 /* ---- File 1: Campaign ---- */
 function handleCampaignFile() {
+  if (!uploadTarget) { setStatus('status-campaign', 'Vui lòng chọn loại dữ liệu (tháng / ngày cụ thể) ở mục "0." bên trên trước.', true); return; }
   var json = pendingRows.campaign;
   if (!json) { setStatus('status-campaign', 'Vui lòng chọn file trước.', true); return; }
   var idKey = document.getElementById('map-campaign-id').value;
@@ -626,20 +747,25 @@ function handleCampaignFile() {
     };
   }).filter(function(r) { return r.id !== '' && r.name !== ''; });
   if (!rows.length) { setStatus('status-campaign', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
-  renderCampaignTable(rows);
-  saveCampaignData();
-  setStatus('status-campaign', 'Đã cập nhật ' + rows.length + ' campaign vào tab "Theo Campaign".', false);
+  var target = uploadTarget;
+  var ds = getDataset(target);
+  ds.campaignRows = rows;
+  ds.timestamp = new Date().toLocaleString('vi-VN');
+  saveDataset(target, 'campaigns', ds);
+  populatePeriodSelectors();
+  if (viewPeriod === target) renderCampaignTable(ds);
+  setStatus('status-campaign', 'Đã cập nhật ' + rows.length + ' campaign cho ' + periodLabel(target) + '.', false);
 }
 
-/* Cộng dồn Số lead và Số tin nhắn của tất cả Ads thuộc cùng 1 Campaign ID */
-function buildCampaignAdsMetrics() {
+/* Cộng dồn Số lead và Số tin nhắn của tất cả Ads thuộc cùng 1 Campaign ID, trong cùng 1 bộ dữ liệu (ds) */
+function buildCampaignAdsMetrics(ds) {
   var metrics = {};
-  if (!adsRows) return metrics;
-  adsRows.forEach(function(ad) {
+  if (!ds || !ds.adsRows) return metrics;
+  ds.adsRows.forEach(function(ad) {
     if (!ad.campaignId) return;
     if (!metrics[ad.campaignId]) metrics[ad.campaignId] = { leads: 0, hasLeads: false, messages: 0, hasMessages: false };
     var m = metrics[ad.campaignId];
-    if (leadMap && leadMap.hasOwnProperty(ad.id)) { m.leads += leadMap[ad.id]; m.hasLeads = true; }
+    if (ds.leadMap && ds.leadMap.hasOwnProperty(ad.id)) { m.leads += ds.leadMap[ad.id]; m.hasLeads = true; }
     if (ad.messages != null && ad.messages >= 0) { m.messages += ad.messages; m.hasMessages = true; }
   });
   return metrics;
@@ -652,13 +778,13 @@ function setCampaignFilter(filter) {
   ['all', 'active', 'paused'].forEach(function(f) {
     document.getElementById('camp-filter-' + f).classList.toggle('active', f === filter);
   });
-  if (campaignRows) renderCampaignTable(campaignRows);
+  renderCampaignTable(getDataset(viewPeriod));
 }
 
-function renderCampaignTable(rows) {
-  campaignRows = rows;
+function renderCampaignTable(ds) {
+  var rows = ds.campaignRows || [];
   rows.sort(function(a, b) { return b.spend - a.spend; });
-  var campMetrics = buildCampaignAdsMetrics();
+  var campMetrics = buildCampaignAdsMetrics(ds);
   var tbody = document.querySelector('#campaign-panel .table-wrap tbody');
   var displayRows = rows.filter(function(r) {
     if (campaignFilter === 'all') return true;
@@ -667,7 +793,9 @@ function renderCampaignTable(rows) {
   });
   var html = '';
   var total = 0, activeCount = 0;
-  if (!displayRows.length) {
+  if (!rows.length) {
+    html = '<tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Chưa có dữ liệu cho ' + periodLabel(viewPeriod) + '. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</td></tr>';
+  } else if (!displayRows.length) {
     html = '<tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Không có campaign nào khớp với bộ lọc hiện tại.</td></tr>';
   }
   displayRows.forEach(function(r, i) {
@@ -703,14 +831,8 @@ function renderCampaignTable(rows) {
   });
 }
 
-/* ---- File 1: Campaign ---- */
-var campaignRows = null;
-
-/* ---- File 2 + File 3: Ads + Lead ---- */
-var adsRows = null;
-var leadMap = null;
-
 function handleAdsFile() {
+  if (!uploadTarget) { setStatus('status-ads', 'Vui lòng chọn loại dữ liệu (tháng / ngày cụ thể) ở mục "0." bên trên trước.', true); return; }
   var json = pendingRows.ads;
   if (!json) { setStatus('status-ads', 'Vui lòng chọn file trước.', true); return; }
   var idKey = document.getElementById('map-ads-id').value;
@@ -720,7 +842,7 @@ function handleAdsFile() {
   var messagesKey = document.getElementById('map-ads-messages').value;
   var campaignIdKey = document.getElementById('map-ads-campaignid').value;
   if (!idKey || !spendKey) { setStatus('status-ads', 'Vui lòng chọn đủ cột Ads ID và Chi phí đã dùng.', true); return; }
-  adsRows = json.map(function(r) {
+  var rows = json.map(function(r) {
     return {
       id: String(r[idKey] == null ? '' : r[idKey]).trim(),
       name: nameKey ? String(r[nameKey] == null ? '' : r[nameKey]).trim() : '',
@@ -730,29 +852,38 @@ function handleAdsFile() {
       campaignId: campaignIdKey ? String(r[campaignIdKey] == null ? '' : r[campaignIdKey]).trim() : ''
     };
   }).filter(function(r) { return r.id !== '' && r.name !== ''; });
-  if (!adsRows.length) { setStatus('status-ads', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
-  renderAdsTable();
-  saveAdsData();
-  if (campaignRows) renderCampaignTable(campaignRows);
-  setStatus('status-ads', 'Đã tải ' + adsRows.length + ' ads.' + (leadMap ? ' Đã ghép với dữ liệu lead hiện có.' : ' Tải thêm file lead (mục 3) để tính Số lead / Chi phí Lead.'), false);
+  if (!rows.length) { setStatus('status-ads', 'Không đọc được dòng dữ liệu hợp lệ nào với cột đã chọn.', true); return; }
+  var target = uploadTarget;
+  var ds = getDataset(target);
+  ds.adsRows = rows;
+  ds.timestamp = new Date().toLocaleString('vi-VN');
+  saveDataset(target, 'ads', ds);
+  populatePeriodSelectors();
+  if (viewPeriod === target) { renderAdsTable(ds); renderCampaignTable(ds); }
+  setStatus('status-ads', 'Đã tải ' + rows.length + ' ads cho ' + periodLabel(target) + '.' + (ds.leadMap ? ' Đã ghép với dữ liệu lead hiện có.' : ' Tải thêm file lead (mục 3) để tính Số lead / Chi phí Lead.'), false);
 }
 
 function handleLeadFile() {
+  if (!uploadTarget) { setStatus('status-lead', 'Vui lòng chọn loại dữ liệu (tháng / ngày cụ thể) ở mục "0." bên trên trước.', true); return; }
   var json = pendingRows.lead;
   if (!json) { setStatus('status-lead', 'Vui lòng chọn file trước.', true); return; }
   var idKey = document.getElementById('map-lead-id').value;
   var leadKey = document.getElementById('map-lead-leads').value;
   if (!idKey || !leadKey) { setStatus('status-lead', 'Vui lòng chọn đủ cột Ads ID và Số lượng lead.', true); return; }
-  leadMap = {};
+  var map = {};
   var count = 0;
   json.forEach(function(r) {
     var id = String(r[idKey] == null ? '' : r[idKey]).trim();
-    if (id !== '' && id !== 'undefined') { leadMap[id] = parseNum(r[leadKey]); count++; }
+    if (id !== '' && id !== 'undefined') { map[id] = parseNum(r[leadKey]); count++; }
   });
-  renderAdsTable();
-  saveLeadsData();
-  if (campaignRows) renderCampaignTable(campaignRows);
-  setStatus('status-lead', 'Đã tải lead cho ' + count + ' ads.' + (adsRows ? ' Đã ghép với file Ads ID.' : ' Tải thêm file Ads ID (mục 2) để ghép dữ liệu.'), false);
+  var target = uploadTarget;
+  var ds = getDataset(target);
+  ds.leadMap = map;
+  ds.timestamp = new Date().toLocaleString('vi-VN');
+  saveDataset(target, 'leads', ds);
+  populatePeriodSelectors();
+  if (viewPeriod === target) { renderAdsTable(ds); renderCampaignTable(ds); }
+  setStatus('status-lead', 'Đã tải lead cho ' + count + ' ads, cho ' + periodLabel(target) + '.' + (ds.adsRows ? ' Đã ghép với file Ads ID.' : ' Tải thêm file Ads ID (mục 2) để ghép dữ liệu.'), false);
 }
 
 var adsFilter = 'all'; // 'all' | 'active' | 'paused'
@@ -762,13 +893,19 @@ function setAdsFilter(filter) {
   ['all', 'active', 'paused'].forEach(function(f) {
     document.getElementById('ads-filter-' + f).classList.toggle('active', f === filter);
   });
-  renderAdsTable();
+  renderAdsTable(getDataset(viewPeriod));
 }
 
-function renderAdsTable() {
-  if (!adsRows) return;
-  var rows = adsRows.map(function(r) {
-    var leads = (leadMap && leadMap.hasOwnProperty(r.id)) ? leadMap[r.id] : -1;
+function renderAdsTable(ds) {
+  if (!ds.adsRows) {
+    var emptyTbody = document.getElementById('ads-tbody');
+    emptyTbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--muted); padding:24px;">Chưa có dữ liệu cho ' + periodLabel(viewPeriod) + '. Vui lòng tải file lên ở tab "Cập nhật dữ liệu".</td></tr>';
+    var emptyCards = document.querySelectorAll('#ads-panel .summary .card .value');
+    emptyCards.forEach(function(c) { c.textContent = '0'; });
+    return;
+  }
+  var rows = ds.adsRows.map(function(r) {
+    var leads = (ds.leadMap && ds.leadMap.hasOwnProperty(r.id)) ? ds.leadMap[r.id] : -1;
     var cpl = (leads > 0) ? Math.round(r.spend / leads) : -1;
     var messages = (r.messages != null && r.messages >= 0) ? r.messages : -1;
     var cr = (leads >= 0 && messages > 0) ? (leads / messages * 100) : -1;
@@ -816,131 +953,239 @@ function renderAdsTable() {
   document.getElementById('arrow-cr').textContent = '⇅';
 }
 
-/* ========== FIREBASE + LOCALSTORAGE ========== */
+/* ========== TRÌNH DUYỆT LƯU CỤC BỘ (INDEXEDDB) + FIREBASE THEO PHIÊN BẢN ========== */
+//
+// Ý tưởng: thay vì giữ kết nối "lắng nghe real-time" (onSnapshot) liên tục — cách này
+// khiến MỌI trình duyệt đang mở trang đều tốn 1 lượt đọc Firestore mỗi khi có BẤT KỲ AI
+// upload dữ liệu mới, dễ vượt hạn mức miễn phí — ta chuyển sang mô hình:
+//   1) Toàn bộ dữ liệu (Dữ liệu tháng + từng ngày) được lưu 1 bản trong IndexedDB của
+//      trình duyệt (adsReportLocalDB). Mở trang lên là đọc từ đây trước, không tốn 1 lượt
+//      đọc Firestore nào.
+//   2) Firebase giữ 1 document nhỏ 'shared/version_index' đánh dấu "phiên bản" (mốc thời
+//      gian) mới nhất của Dữ liệu tháng và của từng ngày. Mỗi lần upload dữ liệu, phiên
+//      bản này được cập nhật.
+//   3) Khi bấm "Tải dữ liệu mới" (hoặc khi mới mở trang), trình duyệt chỉ đọc DUY NHẤT
+//      document version_index đó (1 lượt đọc) để so sánh với phiên bản đang lưu cục bộ.
+//      Chỉ những kỳ (tháng/ngày) nào có phiên bản mới hơn mới được tải về thật sự — kỳ nào
+//      không đổi thì giữ nguyên dữ liệu cũ trong IndexedDB, không tốn thêm lượt đọc nào.
 
-// Lưu riêng từng loại dữ liệu lên Firebase - mỗi loại 1 document riêng
-// để tránh gộp chung thành 1 document quá lớn (giới hạn Firestore là 1MB/document)
-// và để mỗi lần upload chỉ cần ghi đúng phần dữ liệu vừa thay đổi (nhanh hơn).
+var LOCAL_DB_NAME = 'adsReportLocalDB';
+var LOCAL_DB_VERSION = 1;
+var LOCAL_STORE = 'periods';
+var localDBPromise = null;
 
-function saveCampaignData() {
-  if (!window.firebaseReady) return;
-  try {
-    var docRef = window.firebaseDoc(window.firebaseDb, 'shared', 'campaigns');
-    var data = { rows: campaignRows, timestamp: new Date().toLocaleString('vi-VN') };
-    window.firebaseSetDoc(docRef, data)
-      .then(() => { window.firebaseError = null; window.lastSyncedAt = data.timestamp; updateStorageInfo(); })
-      .catch((error) => {
-        console.error('Lỗi lưu campaigns:', error);
-        window.firebaseError = 'Lỗi lưu Campaign: ' + (error.code || error.message || error);
-        updateStorageInfo();
-      });
-  } catch (e) { console.error('Lỗi lưu campaigns:', e); }
+function openLocalDB() {
+  if (localDBPromise) return localDBPromise;
+  localDBPromise = new Promise(function(resolve, reject) {
+    if (!window.indexedDB) { reject(new Error('Trình duyệt không hỗ trợ IndexedDB')); return; }
+    var req = indexedDB.open(LOCAL_DB_NAME, LOCAL_DB_VERSION);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains(LOCAL_STORE)) db.createObjectStore(LOCAL_STORE, { keyPath: 'period' });
+    };
+    req.onsuccess = function(e) { resolve(e.target.result); };
+    req.onerror = function(e) { reject(e.target.error); };
+  });
+  return localDBPromise;
 }
 
-function saveAdsData() {
-  if (!window.firebaseReady) return;
-  try {
-    var docRef = window.firebaseDoc(window.firebaseDb, 'shared', 'ads');
-    var data = { rows: adsRows, timestamp: new Date().toLocaleString('vi-VN') };
-    window.firebaseSetDoc(docRef, data)
-      .then(() => { window.firebaseError = null; window.lastSyncedAt = data.timestamp; updateStorageInfo(); })
-      .catch((error) => {
-        console.error('Lỗi lưu ads:', error);
-        window.firebaseError = 'Lỗi lưu Ads: ' + (error.code || error.message || error);
-        updateStorageInfo();
-      });
-  } catch (e) { console.error('Lỗi lưu ads:', e); }
+function localGetAllPeriods() {
+  return openLocalDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var store = db.transaction(LOCAL_STORE, 'readonly').objectStore(LOCAL_STORE);
+      var req = store.getAll();
+      req.onsuccess = function() { resolve(req.result || []); };
+      req.onerror = function() { reject(req.error); };
+    });
+  });
 }
 
-function saveLeadsData() {
-  if (!window.firebaseReady) return;
-  try {
-    var docRef = window.firebaseDoc(window.firebaseDb, 'shared', 'leads');
-    var data = { map: leadMap, timestamp: new Date().toLocaleString('vi-VN') };
-    window.firebaseSetDoc(docRef, data)
-      .then(() => { window.firebaseError = null; window.lastSyncedAt = data.timestamp; updateStorageInfo(); })
-      .catch((error) => {
-        console.error('Lỗi lưu leads:', error);
-        window.firebaseError = 'Lỗi lưu Lead: ' + (error.code || error.message || error);
-        updateStorageInfo();
-      });
-  } catch (e) { console.error('Lỗi lưu leads:', e); }
+function localSavePeriod(record) {
+  return openLocalDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var store = db.transaction(LOCAL_STORE, 'readwrite').objectStore(LOCAL_STORE);
+      var req = store.put(record);
+      req.onsuccess = function() { resolve(); };
+      req.onerror = function() { reject(req.error); };
+    });
+  });
 }
 
-function loadDataFromFirebase() {
-  if (!window.firebaseReady) { updateStorageInfo(); return; }
-
-  var campaignDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'campaigns');
-  window.firebaseOnSnapshot(campaignDocRef, (docSnap) => {
-    if (docSnap.exists()) {
-      var data = docSnap.data();
-      if (data.rows && data.rows.length) {
-        campaignRows = data.rows;
-        renderCampaignTable(campaignRows);
-        window.lastSyncedAt = data.timestamp;
-        updateStorageInfo();
-      }
-    }
-  }, (error) => {
-    console.error('Lỗi tải campaigns:', error);
-    window.firebaseError = 'Lỗi tải Campaign: ' + (error.code || error.message || error);
-    updateStorageInfo();
+function localClearAll() {
+  return openLocalDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var store = db.transaction(LOCAL_STORE, 'readwrite').objectStore(LOCAL_STORE);
+      var req = store.clear();
+      req.onsuccess = function() { resolve(); };
+      req.onerror = function() { reject(req.error); };
+    });
   });
+}
 
-  var adsDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'ads');
-  window.firebaseOnSnapshot(adsDocRef, (docSnap) => {
-    if (docSnap.exists()) {
-      var data = docSnap.data();
-      if (data.rows && data.rows.length) {
-        adsRows = data.rows;
-        renderAdsTable();
-        if (campaignRows) renderCampaignTable(campaignRows);
-        window.lastSyncedAt = data.timestamp;
-        updateStorageInfo();
-      }
-    }
-  }, (error) => {
-    console.error('Lỗi tải ads:', error);
-    window.firebaseError = 'Lỗi tải Ads: ' + (error.code || error.message || error);
-    updateStorageInfo();
+/* Nạp toàn bộ dữ liệu đã lưu cục bộ (IndexedDB) vào bộ nhớ (monthData / dailyData) — không tốn lượt đọc Firebase nào */
+function loadAllFromLocalCache() {
+  return localGetAllPeriods().then(function(records) {
+    records.forEach(function(rec) {
+      var ds = { campaignRows: rec.campaignRows || null, adsRows: rec.adsRows || null, leadMap: rec.leadMap || null, timestamp: rec.timestamp || null, version: rec.version || 0 };
+      if (rec.period === 'month') monthData = ds;
+      else dailyData[rec.period] = ds;
+    });
   });
+}
 
-  var leadsDocRef = window.firebaseDoc(window.firebaseDb, 'shared', 'leads');
-  window.firebaseOnSnapshot(leadsDocRef, (docSnap) => {
-    if (docSnap.exists()) {
-      var data = docSnap.data();
-      if (data.map) {
-        leadMap = data.map;
-        renderAdsTable();
-        if (campaignRows) renderCampaignTable(campaignRows);
-        window.lastSyncedAt = data.timestamp;
+function setDataStatus(msg, isError) {
+  var el = document.getElementById('local-cache-info');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isError ? '#dc2626' : 'var(--muted)';
+}
+
+/* Lưu 1 phần dữ liệu (campaigns/ads/leads) của 1 kỳ (tháng hoặc 1 ngày cụ thể) lên Firebase,
+   đồng thời đánh dấu phiên bản mới và lưu luôn vào IndexedDB (trình duyệt vừa upload thì đã có
+   sẵn dữ liệu mới nhất, không cần tải lại). */
+function saveDataset(period, kind, ds) {
+  var version = Date.now();
+  ds.version = version;
+  if (!window.firebaseReady) { setDataStatus('⚠️ Firebase chưa sẵn sàng, dữ liệu chỉ được lưu tạm trên trình duyệt này.', true); localSavePeriod(Object.assign({ period: period }, ds)); return; }
+  try {
+    var collectionName = (period === 'month') ? 'shared' : ('daily_' + kind);
+    var docId = (period === 'month') ? kind : period;
+    var payload;
+    if (kind === 'campaigns') payload = { rows: ds.campaignRows, timestamp: ds.timestamp };
+    else if (kind === 'ads') payload = { rows: ds.adsRows, timestamp: ds.timestamp };
+    else payload = { map: ds.leadMap, timestamp: ds.timestamp };
+
+    var docRef = window.firebaseDoc(window.firebaseDb, collectionName, docId);
+    window.firebaseSetDoc(docRef, payload)
+      .then(() => {
+        window.firebaseError = null;
+        window.lastSyncedAt = payload.timestamp;
+        bumpVersionIndex(period, version);
+        return localSavePeriod(Object.assign({ period: period }, ds));
+      })
+      .then(() => updateStorageInfo())
+      .catch((error) => {
+        console.error('Lỗi lưu ' + kind + ':', error);
+        window.firebaseError = 'Lỗi lưu ' + kind + ': ' + (error.code || error.message || error);
         updateStorageInfo();
-      }
-    }
-  }, (error) => {
-    console.error('Lỗi tải leads:', error);
-    window.firebaseError = 'Lỗi tải Lead: ' + (error.code || error.message || error);
-    updateStorageInfo();
+      });
+  } catch (e) { console.error('Lỗi lưu ' + kind + ':', e); }
+}
+
+/* Đánh dấu phiên bản mới nhất cho 1 kỳ trong document nhỏ 'shared/version_index',
+   để lần sau các trình duyệt khác biết kỳ này vừa có dữ liệu mới cần tải về. */
+function bumpVersionIndex(period, version) {
+  if (!window.firebaseReady) return;
+  var indexRef = window.firebaseDoc(window.firebaseDb, 'shared', 'version_index');
+  window.firebaseGetDoc(indexRef).then(function(docSnap) {
+    var data = docSnap.exists() ? docSnap.data() : { month: 0, days: {} };
+    if (period === 'month') data.month = version;
+    else { data.days = data.days || {}; data.days[period] = version; }
+    return window.firebaseSetDoc(indexRef, data);
+  }).catch(function(err) { console.error('Lỗi cập nhật version_index:', err); });
+}
+
+/* Tải thật sự 3 document (campaigns/ads/leads) của 1 kỳ từ Firebase (đọc 1 lần, không lắng nghe),
+   ghi đè vào bộ nhớ + IndexedDB, gắn phiên bản mới nhận được. */
+function fetchPeriodFromFirebase(period, version) {
+  var collCampaigns = (period === 'month') ? 'shared' : 'daily_campaigns';
+  var docCampaigns = (period === 'month') ? 'campaigns' : period;
+  var collAds = (period === 'month') ? 'shared' : 'daily_ads';
+  var docAds = (period === 'month') ? 'ads' : period;
+  var collLeads = (period === 'month') ? 'shared' : 'daily_leads';
+  var docLeads = (period === 'month') ? 'leads' : period;
+
+  var pCamp = window.firebaseGetDoc(window.firebaseDoc(window.firebaseDb, collCampaigns, docCampaigns));
+  var pAds = window.firebaseGetDoc(window.firebaseDoc(window.firebaseDb, collAds, docAds));
+  var pLeads = window.firebaseGetDoc(window.firebaseDoc(window.firebaseDb, collLeads, docLeads));
+
+  return Promise.all([pCamp, pAds, pLeads]).then(function(results) {
+    var campSnap = results[0], adsSnap = results[1], leadsSnap = results[2];
+    var ds = getDataset(period);
+    if (campSnap.exists()) { var d1 = campSnap.data(); ds.campaignRows = d1.rows || null; ds.timestamp = d1.timestamp || ds.timestamp; }
+    if (adsSnap.exists()) { var d2 = adsSnap.data(); ds.adsRows = d2.rows || null; ds.timestamp = d2.timestamp || ds.timestamp; }
+    if (leadsSnap.exists()) { var d3 = leadsSnap.data(); ds.leadMap = d3.map || null; ds.timestamp = d3.timestamp || ds.timestamp; }
+    ds.version = version;
+    return localSavePeriod(Object.assign({ period: period }, ds));
   });
+}
+
+/* Hàm chính: kiểm tra phiên bản trên Firebase (1 lượt đọc document version_index),
+   chỉ tải về những kỳ (tháng / ngày) có phiên bản mới hơn bản đang lưu cục bộ. */
+function checkForUpdates(isManual) {
+  if (!window.firebaseReady) {
+    setDataStatus('⚠️ Chưa kết nối được Firebase, đang hiển thị dữ liệu đã lưu trên trình duyệt.', true);
+    return Promise.resolve();
+  }
+  setDataStatus('Đang kiểm tra dữ liệu mới trên Firebase...', false);
+  var indexRef = window.firebaseDoc(window.firebaseDb, 'shared', 'version_index');
+  return window.firebaseGetDoc(indexRef).then(function(docSnap) {
+    var remote = docSnap.exists() ? docSnap.data() : { month: 0, days: {} };
+    var remoteDays = remote.days || {};
+    var tasks = [];
+    var updatedPeriods = [];
+
+    if ((remote.month || 0) > (monthData.version || 0)) {
+      tasks.push(fetchPeriodFromFirebase('month', remote.month).then(function() { updatedPeriods.push('month'); }));
+    }
+    Object.keys(remoteDays).forEach(function(date) {
+      var localVersion = (dailyData[date] && dailyData[date].version) || 0;
+      if (remoteDays[date] > localVersion) {
+        tasks.push(fetchPeriodFromFirebase(date, remoteDays[date]).then(function() { updatedPeriods.push(date); }));
+      }
+    });
+
+    return Promise.all(tasks).then(function() {
+      populatePeriodSelectors();
+      if (updatedPeriods.length) {
+        if (updatedPeriods.indexOf(viewPeriod) !== -1) {
+          var ds = getDataset(viewPeriod);
+          renderCampaignTable(ds);
+          renderAdsTable(ds);
+        }
+        window.lastSyncedAt = new Date().toLocaleString('vi-VN');
+        setDataStatus('✅ Đã tải dữ liệu mới cho: ' + updatedPeriods.map(periodLabel).join(', ') + '.', false);
+      } else {
+        setDataStatus(isManual ? '✅ Dữ liệu trên trình duyệt đã là mới nhất — không có gì để tải thêm.' : '✅ Dữ liệu đã ở phiên bản mới nhất.', false);
+      }
+      updateStorageInfo();
+    });
+  }).catch(function(err) {
+    console.error('Lỗi kiểm tra phiên bản dữ liệu:', err);
+    setDataStatus('❌ Lỗi khi kiểm tra dữ liệu mới: ' + (err.code || err.message || err), true);
+  });
+}
+
+function manualCheckForUpdates() {
+  checkForUpdates(true);
 }
 
 function clearAllStoredData() {
-  if (confirm('Bạn có chắc muốn xóa TẤT CẢ dữ liệu đã lưu trên Firebase? (Hành động này không thể hoàn tác)')) {
+  if (confirm('Bạn có chắc muốn xóa TẤT CẢ dữ liệu đã lưu (cả trên Firebase và bản lưu cục bộ trên trình duyệt này)? (Hành động này không thể hoàn tác)')) {
     try {
       if (window.firebaseReady) {
-        ['campaigns', 'ads', 'leads'].forEach(function(name) {
+        ['campaigns', 'ads', 'leads', 'version_index'].forEach(function(name) {
           var docRef = window.firebaseDoc(window.firebaseDb, 'shared', name);
           window.firebaseSetDoc(docRef, {})
             .then(() => console.log('✓ Đã xóa ' + name))
             .catch((err) => console.error('Lỗi xóa ' + name + ':', err));
         });
+        Object.keys(dailyData).forEach(function(date) {
+          ['daily_campaigns', 'daily_ads', 'daily_leads'].forEach(function(coll) {
+            var docRef = window.firebaseDoc(window.firebaseDb, coll, date);
+            window.firebaseSetDoc(docRef, {})
+              .then(() => console.log('✓ Đã xóa ' + coll + '/' + date))
+              .catch((err) => console.error('Lỗi xóa ' + coll + '/' + date + ':', err));
+          });
+        });
       }
 
-      campaignRows = null;
-      adsRows = null;
-      leadMap = null;
-      
-      setTimeout(() => location.reload(), 500);
+      monthData = { campaignRows: null, adsRows: null, leadMap: null, timestamp: null, version: 0 };
+      dailyData = {};
+
+      localClearAll().catch(function(e) { console.error('Lỗi xóa dữ liệu cục bộ:', e); }).then(function() {
+        setTimeout(() => location.reload(), 500);
+      });
     } catch (e) {
       console.error('Lỗi khi xóa:', e);
       location.reload();
@@ -962,7 +1207,7 @@ function updateStorageInfo() {
     }
 
     if (window.lastSyncedAt) {
-      infoEl.textContent = firebaseStatus + ' • Lưu lúc: ' + window.lastSyncedAt;
+      infoEl.textContent = firebaseStatus + ' • Lưu lúc: ' + window.lastSyncedAt + ' • Đang xem dữ liệu đã lưu trên trình duyệt (IndexedDB)';
       infoEl.style.color = window.firebaseReady ? '#16a34a' : '#f59e0b';
     } else {
       infoEl.textContent = firebaseStatus + ' • Chưa có dữ liệu được lưu';
@@ -973,26 +1218,30 @@ function updateStorageInfo() {
   }
 }
 
-/* Khôi phục dữ liệu khi trang load */
+/* Khôi phục dữ liệu khi trang load: đọc từ IndexedDB trước (không tốn lượt đọc Firebase),
+   hiển thị ngay, sau đó mới kiểm tra Firebase xem có kỳ nào có phiên bản mới hơn không. */
 window.addEventListener('load', function() {
   // Export các hàm vào window
   window.updateStorageInfo = updateStorageInfo;
-  window.loadDataFromFirebase = loadDataFromFirebase;
-  window.saveCampaignData = saveCampaignData;
-  window.saveAdsData = saveAdsData;
-  window.saveLeadsData = saveLeadsData;
+  window.checkForUpdates = checkForUpdates;
+  window.manualCheckForUpdates = manualCheckForUpdates;
+  window.saveDataset = saveDataset;
   window.clearAllStoredData = clearAllStoredData;
-  
-  // Đợi Firebase sẵn sàng rồi tải dữ liệu
-  if (window.firebaseReady) {
-    loadDataFromFirebase();
-  } else {
-    // Firebase chưa sẵn sàng, thử lại sau 1s
-    setTimeout(() => {
-      loadDataFromFirebase();
-    }, 1000);
-  }
+
+  loadAllFromLocalCache().catch(function(e) { console.error('Lỗi đọc dữ liệu cục bộ:', e); }).then(function() {
+    populatePeriodSelectors();
+    renderCampaignTable(getDataset(viewPeriod));
+    renderAdsTable(getDataset(viewPeriod));
+    updateStorageInfo();
+
+    if (window.firebaseReady) {
+      checkForUpdates(false);
+    } else {
+      setTimeout(() => { checkForUpdates(false); }, 1000);
+    }
+  });
 });
 </script>
+
 </body>
 </html>
