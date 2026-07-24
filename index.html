@@ -330,7 +330,7 @@
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
   // Firebase config
   const firebaseConfig = {
@@ -355,6 +355,8 @@
   window.firebaseDoc = doc;
   window.firebaseSetDoc = setDoc;
   window.firebaseGetDoc = getDoc;
+  window.firebaseCollection = collection;
+  window.firebaseGetDocs = getDocs;
 
   // Sẵn sàng dùng ngay, không cần đăng nhập
   setTimeout(() => {
@@ -1022,7 +1024,8 @@ function localClearAll() {
   });
 }
 
-/* Nạp toàn bộ dữ liệu đã lưu cục bộ (IndexedDB) vào bộ nhớ (monthData / dailyData) — không tốn lượt đọc Firebase nào */
+/* Nạp toàn bộ dữ liệu đã lưu cục bộ (IndexedDB) vào bộ nhớ (monthData / dailyData) — không tốn lượt đọc Firebase nào.
+   Trả về số lượng kỳ đã có trong bộ nhớ cache cục bộ, để biết đây có phải lần đầu truy cập hay không (0 = lần đầu). */
 function loadAllFromLocalCache() {
   return localGetAllPeriods().then(function(records) {
     records.forEach(function(rec) {
@@ -1030,6 +1033,7 @@ function loadAllFromLocalCache() {
       if (rec.period === 'month') monthData = ds;
       else dailyData[rec.period] = ds;
     });
+    return records.length;
   });
 }
 
@@ -1110,27 +1114,68 @@ function fetchPeriodFromFirebase(period, version) {
   });
 }
 
+/* Dùng riêng cho LẦN ĐẦU TRUY CẬP (chưa có gì trong IndexedDB): liệt kê toàn bộ các ngày
+   thực sự đang có dữ liệu trên Firebase (kể cả những ngày được upload từ trước khi có
+   cơ chế đánh dấu phiên bản, nên có thể chưa xuất hiện trong 'shared/version_index').
+   Chỉ chạy 1 lần duy nhất lúc bootstrap nên chấp nhận tốn thêm vài lượt đọc. */
+function discoverAllDaysFromFirebase() {
+  if (!window.firebaseReady) return Promise.resolve([]);
+  var collections = ['daily_campaigns', 'daily_ads', 'daily_leads'];
+  return Promise.all(collections.map(function(name) {
+    return window.firebaseGetDocs(window.firebaseCollection(window.firebaseDb, name))
+      .then(function(snapshot) {
+        var ids = [];
+        snapshot.forEach(function(docSnap) { ids.push(docSnap.id); });
+        return ids;
+      })
+      .catch(function(err) { console.error('Lỗi liệt kê ' + name + ':', err); return []; });
+  })).then(function(results) {
+    var set = {};
+    results.forEach(function(ids) { ids.forEach(function(id) { set[id] = true; }); });
+    return Object.keys(set);
+  });
+}
+
 /* Hàm chính: kiểm tra phiên bản trên Firebase (1 lượt đọc document version_index),
-   chỉ tải về những kỳ (tháng / ngày) có phiên bản mới hơn bản đang lưu cục bộ. */
-function checkForUpdates(isManual) {
+   chỉ tải về những kỳ (tháng / ngày) có phiên bản mới hơn bản đang lưu cục bộ.
+   - forceInitial = true: dùng cho LẦN ĐẦU TRUY CẬP (chưa có gì lưu cục bộ) — sẽ tải về
+     TOÀN BỘ dữ liệu tháng + tất cả các ngày đang có trên Firebase, bất kể có phiên bản
+     hay không, để đảm bảo không bỏ sót dữ liệu cũ (upload từ trước khi có tính năng
+     đánh dấu phiên bản). */
+function checkForUpdates(isManual, forceInitial) {
   if (!window.firebaseReady) {
     setDataStatus('⚠️ Chưa kết nối được Firebase, đang hiển thị dữ liệu đã lưu trên trình duyệt.', true);
     return Promise.resolve();
   }
-  setDataStatus('Đang kiểm tra dữ liệu mới trên Firebase...', false);
+  setDataStatus(forceInitial ? 'Lần đầu truy cập — đang tải toàn bộ dữ liệu từ Firebase...' : 'Đang kiểm tra dữ liệu mới trên Firebase...', false);
   var indexRef = window.firebaseDoc(window.firebaseDb, 'shared', 'version_index');
-  return window.firebaseGetDoc(indexRef).then(function(docSnap) {
+  var indexPromise = window.firebaseGetDoc(indexRef);
+  var daysPromise = forceInitial ? discoverAllDaysFromFirebase() : Promise.resolve(null);
+
+  return Promise.all([indexPromise, daysPromise]).then(function(results) {
+    var docSnap = results[0];
+    var discoveredDays = results[1];
     var remote = docSnap.exists() ? docSnap.data() : { month: 0, days: {} };
     var remoteDays = remote.days || {};
+
+    if (discoveredDays) {
+      discoveredDays.forEach(function(date) {
+        if (!(date in remoteDays)) remoteDays[date] = Date.now();
+      });
+    }
+
     var tasks = [];
     var updatedPeriods = [];
 
-    if ((remote.month || 0) > (monthData.version || 0)) {
-      tasks.push(fetchPeriodFromFirebase('month', remote.month).then(function() { updatedPeriods.push('month'); }));
+    var monthNeedsFetch = forceInitial || ((remote.month || 0) > (monthData.version || 0));
+    if (monthNeedsFetch) {
+      var monthVersion = remote.month || Date.now();
+      tasks.push(fetchPeriodFromFirebase('month', monthVersion).then(function() { updatedPeriods.push('month'); }));
     }
+
     Object.keys(remoteDays).forEach(function(date) {
       var localVersion = (dailyData[date] && dailyData[date].version) || 0;
-      if (remoteDays[date] > localVersion) {
+      if (forceInitial || remoteDays[date] > localVersion) {
         tasks.push(fetchPeriodFromFirebase(date, remoteDays[date]).then(function() { updatedPeriods.push(date); }));
       }
     });
@@ -1144,7 +1189,7 @@ function checkForUpdates(isManual) {
           renderAdsTable(ds);
         }
         window.lastSyncedAt = new Date().toLocaleString('vi-VN');
-        setDataStatus('✅ Đã tải dữ liệu mới cho: ' + updatedPeriods.map(periodLabel).join(', ') + '.', false);
+        setDataStatus('✅ Đã tải dữ liệu cho: ' + updatedPeriods.map(periodLabel).join(', ') + '.', false);
       } else {
         setDataStatus(isManual ? '✅ Dữ liệu trên trình duyệt đã là mới nhất — không có gì để tải thêm.' : '✅ Dữ liệu đã ở phiên bản mới nhất.', false);
       }
@@ -1157,8 +1202,9 @@ function checkForUpdates(isManual) {
 }
 
 function manualCheckForUpdates() {
-  checkForUpdates(true);
+  checkForUpdates(true, false);
 }
+
 
 function clearAllStoredData() {
   if (confirm('Bạn có chắc muốn xóa TẤT CẢ dữ liệu đã lưu (cả trên Firebase và bản lưu cục bộ trên trình duyệt này)? (Hành động này không thể hoàn tác)')) {
@@ -1219,7 +1265,9 @@ function updateStorageInfo() {
 }
 
 /* Khôi phục dữ liệu khi trang load: đọc từ IndexedDB trước (không tốn lượt đọc Firebase),
-   hiển thị ngay, sau đó mới kiểm tra Firebase xem có kỳ nào có phiên bản mới hơn không. */
+   hiển thị ngay, sau đó mới kiểm tra Firebase xem có kỳ nào có phiên bản mới hơn không.
+   Nếu đây là LẦN ĐẦU TRUY CẬP (IndexedDB hoàn toàn trống) thì tự động tải về TOÀN BỘ
+   dữ liệu đang có trên Firebase, không chờ phải có phiên bản mới hơn mới tải. */
 window.addEventListener('load', function() {
   // Export các hàm vào window
   window.updateStorageInfo = updateStorageInfo;
@@ -1228,20 +1276,24 @@ window.addEventListener('load', function() {
   window.saveDataset = saveDataset;
   window.clearAllStoredData = clearAllStoredData;
 
-  loadAllFromLocalCache().catch(function(e) { console.error('Lỗi đọc dữ liệu cục bộ:', e); }).then(function() {
-    populatePeriodSelectors();
-    renderCampaignTable(getDataset(viewPeriod));
-    renderAdsTable(getDataset(viewPeriod));
-    updateStorageInfo();
+  loadAllFromLocalCache()
+    .catch(function(e) { console.error('Lỗi đọc dữ liệu cục bộ:', e); return 0; })
+    .then(function(cachedCount) {
+      var isFirstVisit = !cachedCount;
+      populatePeriodSelectors();
+      renderCampaignTable(getDataset(viewPeriod));
+      renderAdsTable(getDataset(viewPeriod));
+      updateStorageInfo();
 
-    if (window.firebaseReady) {
-      checkForUpdates(false);
-    } else {
-      setTimeout(() => { checkForUpdates(false); }, 1000);
-    }
-  });
+      if (window.firebaseReady) {
+        checkForUpdates(false, isFirstVisit);
+      } else {
+        setTimeout(() => { checkForUpdates(false, isFirstVisit); }, 1000);
+      }
+    });
 });
 </script>
 
 </body>
 </html>
+
